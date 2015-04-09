@@ -151,7 +151,276 @@ int LEDCheck::getFrequency(char *stringRGB,int channel)
     return 1;
 }
 
-
+//Function that check if the led show blue color.
+bool LEDCheck::CheckBlueLED(char *strLEDBuf,int i_spec)
+{
+    char strRed[10] = "";
+    GetStrBetween(strLEDBuf,strRed,"R:","G:");
+    int fRed = atoi(strRed);
+    char strGreen[10] = "";
+    GetStrBetween(strLEDBuf,strGreen,"G:","B:");
+    int fGreen = atoi(strGreen);
+    char strBlue[10] = "";
+    GetStrBetween(strLEDBuf,strBlue,"B:","I:");
+    int fBlue = atoi(strBlue);
+    char strIight[10] = "";
+    GetStrBetween(strLEDBuf,strIight,"I:",";");
+    int fIight = atoi(strIight);
+    if(fRed<0)
+        fRed=0;
+    if(fGreen<0)
+        fGreen=0;
+    if(fBlue<0)
+        fBlue=0;
+    if(fIight<0)
+        fIight=0;
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    printf("fIight=%d\n",fIight);
+    if(fIight==0)
+    	return false;
+    fRed=fRed*255/fIight;
+    fGreen=fGreen*255/fIight;
+    fBlue=fBlue*255/fIight;
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    if(fRed>255)       { fRed=255;}
+    if(fGreen>255)     { fGreen=255;}
+    if(fBlue>255)      { fBlue=255;}
+    if((fBlue>fGreen)&&(fBlue>fRed))
+    {
+        if(fIight<i_spec)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false; 
+ 
+}
+//Function that check if the led show green color.
+bool LEDCheck::CheckGreenLED(char *strLEDBuf,int i_spec)
+{
+    //char a[10]="";
+    char strRed[10] = "";
+    GetStrBetween(strLEDBuf,strRed,"R:","G:");
+    int fRed = atoi(strRed);
+    char strGreen[10] = "";
+    GetStrBetween(strLEDBuf,strGreen,"G:","B:");
+    int fGreen = atoi(strGreen);
+    char strBlue[10] = "";
+    GetStrBetween(strLEDBuf,strBlue,"B:","I:");
+    int fBlue = atoi(strBlue);
+    char strIight[10] = "";
+    GetStrBetween(strLEDBuf,strIight,"I:",";");
+    int fIight = atoi(strIight);
+    if(fRed<0)
+        fRed=0;
+    if(fGreen<0)
+        fGreen=0;
+    if(fBlue<0)
+        fBlue=0;
+    if(fIight<0)
+        fIight=0;
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    printf("fIight=%d\n",fIight);
+    if(fIight==0)
+        return false;
+    fRed=fRed*255;
+    fRed=fRed/fIight;
+    fGreen=fGreen*255;
+    fGreen=fGreen/fIight;
+    fBlue=fBlue*255;
+    fBlue=fBlue/fIight;
+    
+    if(fRed>255)       { fRed=255;}
+    if(fGreen>255)     { fGreen=255;}
+    if(fBlue>255)      { fBlue=255;}
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+   if(fGreen*10>fRed*6)
+    {
+        if(fIight<i_spec)
+            return false;
+        else
+            return true;
+    }
+   else
+        return false; 
+ 
+}
+//Function that check if the led show amber color.
+bool LEDCheck::CheckAmberLED(char *strLEDBuf,int i_spec)
+{
+    char strRed[10] = "";
+    GetStrBetween(strLEDBuf,strRed,"R:","G:");
+    int fRed = atoi(strRed);
+    char strGreen[10] = "";
+    GetStrBetween(strLEDBuf,strGreen,"G:","B:");
+    int fGreen = atoi(strGreen);
+    char strBlue[10] = "";
+    GetStrBetween(strLEDBuf,strBlue,"B:","I:");
+    int fBlue = atoi(strBlue);
+    char strIight[10] = "";
+    GetStrBetween(strLEDBuf,strIight,"I:",";");
+    int fIight = atoi(strIight);
+    if(fRed<0)
+        fRed=0;
+    if(fGreen<0)
+        fGreen=0;
+    if(fBlue<0)
+        fBlue=0;
+    if(fIight<0)
+        fIight=0;
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    printf("fIight=%d\n",fIight);
+    if(fIight==0)
+    	return false;
+    fRed=fRed*255/fIight;
+    fGreen=fGreen*255/fIight;
+    fBlue=fBlue*255/fIight;
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    if(fRed>255)       { fRed=255;}
+    if(fGreen>255)     { fGreen=255;}
+    if(fBlue>255)      { fBlue=255;}
+    if(6*fRed>10*fGreen)
+    {
+        if(fIight<i_spec)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false; 
+   
+}
+bool LEDCheck::CheckRedLED(char *strLEDBuf,int i_spec)
+{
+    char strRed[10] = "";
+    GetStrBetween(strLEDBuf,strRed,"R:","G:");
+    int fRed = atoi(strRed);
+    char strGreen[10] = "";
+    GetStrBetween(strLEDBuf,strGreen,"G:","B:");
+    int fGreen = atoi(strGreen);
+    char strBlue[10] = "";
+    GetStrBetween(strLEDBuf,strBlue,"B:","I:");
+    int fBlue = atoi(strBlue);
+    char strIight[10] = "";
+    GetStrBetween(strLEDBuf,strIight,"I:",";");
+    int fIight = atoi(strIight);
+    if(fRed<0)
+        fRed=0;
+    if(fGreen<0)
+        fGreen=0;
+    if(fBlue<0)
+        fBlue=0;
+    if(fIight<0)
+        fIight=0;
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    printf("fIight=%d\n",fIight);
+    if(fIight==0)
+    	return false;
+    fRed=fRed*255/fIight;
+    fGreen=fGreen*255/fIight;
+    fBlue=fBlue*255/fIight;
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    if(fRed>255)       { fRed=255;}
+    if(fGreen>255)     { fGreen=255;}
+    if(fBlue>255)      { fBlue=255;}
+    if((fRed>fGreen)&&(fRed>fBlue))
+    {
+        if(fIight<i_spec)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false; 
+    
+}
+bool LEDCheck::CheckWhiteLED(char *strLEDBuf,int i_spec)
+{
+    int maxColor = 0;
+    int mixColor = 0;
+    char strRed[10] = "";
+    GetStrBetween(strLEDBuf,strRed,"R:","G:");
+    int fRed = atoi(strRed);
+    char strGreen[10] = "";
+    GetStrBetween(strLEDBuf,strGreen,"G:","B:");
+    int fGreen = atoi(strGreen);
+    char strBlue[10] = "";
+    GetStrBetween(strLEDBuf,strBlue,"B:","I:");
+    int fBlue = atoi(strBlue);
+    char strIight[10] = "";
+    GetStrBetween(strLEDBuf,strIight,"I:",";");
+    int fIight = atoi(strIight);
+    if(fRed<0)
+        fRed=0;
+    if(fGreen<0)
+        fGreen=0;
+    if(fBlue<0)
+        fBlue=0;
+    if(fIight<0)
+        fIight=0;
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    printf("fIight=%d\n",fIight);
+    if(fIight==0)
+    	return false;
+    fRed=fRed*255/fIight;
+    fGreen=fGreen*255/fIight;
+    fBlue=fBlue*255/fIight;
+    maxColor = fRed;
+    if(fGreen > maxColor)
+    {
+        maxColor = fGreen;
+    }
+    if(fBlue > maxColor)
+     {
+        maxColor = fBlue;
+     }
+     mixColor = fGreen;
+    if(fRed < mixColor)
+    {
+        mixColor = fRed;
+        
+    }
+    if(fBlue < mixColor)
+     {
+        mixColor = fBlue;
+     }
+        
+    printf("fRed=%d\n",fRed);
+    printf("fGreen=%d\n",fGreen);
+    printf("fBlue=%d\n",fBlue);
+    if(fRed>255)       { fRed=255;}
+    if(fGreen>255)     { fGreen=255;}
+    if(fBlue>255)      { fBlue=255;}
+    if(10*mixColor > 6*maxColor)
+    {
+        if(fIight<i_spec)
+            return false;
+        else
+            return true;
+    }
+    else
+        return false; 
+    
+}
 
 //Function getting digit value from one string.
 int LEDCheck::GetStrBetween(char *strSource,char *rGb,const char *strB,const char *strN)
