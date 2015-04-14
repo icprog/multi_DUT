@@ -16,7 +16,7 @@ using namespace std;
 
 class Cylinder
 {
-	#define AUDIOSW_ADDRESS 0x24  
+    #define AUDIOSW_ADDRESS 0x24  
     #define BOARD_IOCTL_I2C_CTRL 0x1
     #define RELAY_ADDRESS 0x24
     #define AUDIOSW_ADDRESS 0x24 
@@ -53,7 +53,8 @@ public:
     Cylinder();
 public:
     virtual ~Cylinder();
-	
-	
+
+    int doAction(const char *cmd);
+     
 };
 #endif
