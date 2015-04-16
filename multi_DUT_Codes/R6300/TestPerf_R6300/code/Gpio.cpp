@@ -221,3 +221,96 @@ void setYellowBlink()
 }
 /*************************************************************************************/
 
+
+
+int main ( int argc, int argv[] )
+{
+
+   init_io_port();
+
+   printf("Start\n");
+   printf("LED ON\n");
+   setRedOn();
+   setGreenOn();
+   setYellowOn();
+
+   sleep(2);
+
+   printf("LED OFF\n");
+   setRedOff();
+   setGreenOff();
+   setYellowOff();
+
+   sleep(2);
+
+   printf("LED ON\n");
+   setRedOn();
+   setGreenOn();
+   setYellowOn();
+
+   sleep(2);
+
+   printf("LED BLINK\n");
+   setRedBlink();
+   setGreenBlink();
+   setYellowBlink();
+
+   sleep(2);
+   
+   printf("LED OFF\n");
+   setRedOff();
+   setGreenOff();
+   setYellowOff();
+
+   sleep(2);
+
+   printf("LED ON\n");
+   setRedOn();
+   setGreenOn();
+   setYellowOn();
+   sleep(2);
+
+   int status = 0;
+   printf("GET BUTTON1 STATUS\n");
+   status = getBtn1Status();
+   printf("BUTTON1 Status:%d\n",status);
+
+   printf("PRESS BUTTON1 in 5 secs\n");
+   sleep(5);
+   status = getBtn1Status();
+   printf("BUTTON1 Status:%d\n",status);
+
+   printf("GET BUTTON2 STATUS\n");
+   status = getBtn2Status();
+   printf("BUTTON2 Status:%d\n",status);
+
+   printf("PRESS BUTTON2 in 5 secs\n");
+   sleep(5);
+   status = getBtn2Status();
+   printf("BUTTON2 Status:%d\n",status);
+ 
+   printf("Stop\n");
+
+    Cylinder cylinder;
+    int status = 0,status1=0;
+    while(1)
+    {
+       status = getBtn1Status();
+       
+       sleep(1);
+       status1 = getBtn1Status();
+       
+       if((!status1)&&(!status))
+        {
+            cylinder.doAction("RELAY_CTL_ON:1;");
+            printf("OK!!!!!!!\n");
+        }
+        else
+            continue;
+        sleep(30);
+        cylinder.doAction("RELAY_CTL_OFF:1;");
+        printf("OUT!!!!!!!!!!\n");
+    }
+    
+   return 0;
+}
