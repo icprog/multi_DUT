@@ -36,3 +36,110 @@ CTelnet::~CTelnet()
 {
 	close(sockfd);  //close socket 
 }
+
+int CTelnet::sendTelnetCmd(char *cmd,char *pData,int timeOut)
+{		
+   fd_set rfds;
+    struct timeval tv;
+    int retval;
+    sprintf(sendData,"%s\n",cmd);
+    printf("%s\n",sendData);
+   
+    		
+    if(send(sockfd,sendData,strlen(sendData)+1,0)==-1)//socker send
+    {
+        perror("send");
+        exit(1);
+    } 
+    else
+    {
+       printf("send ok!\n");
+    }
+     FD_ZERO(&rfds);
+    FD_SET(sockfd, &rfds);
+    printf("size:%d\n",sizeof(pData));
+    printf("size1:%d\n",strlen(sendData)+1);
+    /* Watch stdin (fd 0) to see when it has input. */
+   
+    tv.tv_sec = timeOut;
+    tv.tv_usec = 0;
+    retval = ::select(sockfd+1, &rfds, NULL, NULL, &tv);
+    /* Donrely on the value of tv now! */
+    if (retval == -1)
+    	perror("select()");
+    else if (retval)
+    	printf("Data is available now.\n");
+    /* FD_ISSET(0, &rfds) will be true. */
+    else
+    	printf("No data within one second.\n");
+   if(retval)
+{ 
+   	usleep(500000);
+   	int status = ::recv(sockfd,pData,1000,0);
+   if(status==-1)
+   {    
+   	printf("status: %d\n",status);
+	return 0;
+	
+   }
+   else if(status==0)
+   {
+	printf("status=0: %d\n",status);
+	return 0;
+   }
+   else
+   {
+	printf("Recieve:%s\n",pData);
+	printf("My status: %d\n",status);
+       return(status);
+    }
+}
+    return 0;
+}
+int CTelnet::getTelnetAction(char *pData,int timeOut)
+{		
+   fd_set rfds;
+    struct timeval tv;
+    int retval;
+ 
+     FD_ZERO(&rfds);
+    FD_SET(sockfd, &rfds);
+    printf("size:%d\n",sizeof(pData));
+    printf("size1:%d\n",strlen(sendData)+1);
+    /* Watch stdin (fd 0) to see when it has input. */
+   
+    tv.tv_sec = timeOut;
+    tv.tv_usec = 0;
+    retval = ::select(sockfd+1, &rfds, NULL, NULL, &tv);
+    /* Don rely on the value of tv now! */
+    if (retval == -1)
+    	perror("select()");
+    else if (retval)
+    	printf("Data is available now.\n");
+    /* FD_ISSET(0, &rfds) will be true. */
+    else
+    	printf("No data within %d seconds.\n",timeOut);
+   if(retval)
+{ 
+   	usleep(500000);
+   	int status = ::recv(sockfd,pData,1000,0);
+   if(status==-1)
+   {    
+   	printf("status: %d\n",status);
+	return 0;
+	
+   }
+   else if(status==0)
+   {
+	printf("status=0: %d\n",status);
+	return 0;
+   }
+   else
+   {
+	//printf("Recieve:%s\n",pData);
+	printf("My status: %d\n",status);
+       return(status);
+    }
+}
+    return 0;
+}

@@ -24,4 +24,7 @@ public:
 	CTelnet(char *ipAddr);
 	~CTelnet();
 	
+public:
+	int sendTelnetCmd(char *cmd,char *spec,int timeOut);
+	int getTelnetAction(char *pData,int timeOut);
 };
