@@ -14,6 +14,7 @@ CAmParser::~CAmParser(void)
 
 }
 
+/*This function is copy Start tag and Stop Tag*/
 void CAmParser::SetStartStopTag(const char *pStart,const char *pStop)
 {
 
@@ -27,6 +28,7 @@ void CAmParser::SetStartStopTag(const char *pStart,const char *pStop)
 	return;
 }
 
+/*This function is copy some character from string to other case one spec character was happen*/
 int CAmParser::CopyCaseStr(char *pDst, int DstLen, const char *pSrc, char *caseCH)
 {
 
@@ -54,6 +56,7 @@ int CAmParser::CopyCaseStr(char *pDst, int DstLen, const char *pSrc, char *caseC
 	}
 }
 
+/*This function is parser parameter character from data*/
 int CAmParser::ParserGetPara(char *pDesBUFF,const char *pTagBuff,char *pRtnConBUFF, unsigned int RtnConBUFFLen)
 {
 	char TagBUFF[128] = "";
@@ -133,7 +136,7 @@ int CAmParser::ParserGetPara(char *pDesBUFF,const char *pTagBuff,char *pRtnConBU
 	return 0;
 }
 
-//For parser more than one tag
+/*For parser more than one tag*/
 int CAmParser::ParserGetParaMulti(char *pDesBUFF, char *pTagBuff)
 {
 	return 0;
