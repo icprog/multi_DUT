@@ -133,4 +133,10 @@ int CAmParser::ParserGetPara(char *pDesBUFF,const char *pTagBuff,char *pRtnConBU
 	return 0;
 }
 
+//For parser more than one tag
+int CAmParser::ParserGetParaMulti(char *pDesBUFF, char *pTagBuff)
+{
+	return 0;
+};
+
 
