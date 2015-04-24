@@ -5,11 +5,11 @@
 
 	Version:	v1.0.0.1
 
-	Copyright:	(C) 2015 by Ambit Micro, Inc., all rights reserved.
+	Copyright:	(C) 2015 by Micro, Inc., all rights reserved.
 
 	Change History (most recent first):
 
-	Create by FaHong Zhou 2015/04/16
+	Create by FHZ 2015/04/16
 
 */
 
