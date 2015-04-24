@@ -5,6 +5,25 @@
 #include "ATestIO.h"
 #include "HashMapPara.h"
 
+/*the version define rule:
+Version: A.B.C.D
+A. main version number (A - 1, N - 2, T - 3)
+B. large version number(PT - 10, FT - 20, RC - 30)
+C.version number(intial - 101) when little version increase 10,update the version number
+D.little version number ()   when modify the code more then 10 then modify it.
+tag. a - demo, b - demo range, NULL - release 
+for example
+A project    1.20.101.0
+N project    2.30.101.0
+T project    3.30.101.0
+*/
+
+#define SOFTWARE_VERSION	"2.30.1.1@"
+#define DUT_NAME "NETGEAR"
+#define AM_UI_IP "10.0.0.150"// use com with UI
+#define AM_UI_PORT  10000    // use com with UI
+
+
 // DUT informations 
 typedef struct DUTInfoTag
 {
@@ -25,6 +44,7 @@ typedef struct DUTInfoTag
 	//char TitleVersion[256];	
 }DUT_INFO;
 
+
 // Tester station informations
 typedef struct TestStationInfoTag
 {
@@ -43,12 +63,14 @@ typedef struct TestStationInfoTag
 	
 }TEST_STATION_INFO;
 
+
 // Tester station informations
 typedef struct TestInputDataTag
 {
 	TEST_STATION_INFO TestStaInfo;
 	DUT_INFO DUTInfo;
 }TEST_INPUT_INFO;
+
 
 //test result define
 typedef struct TestResultTag
@@ -76,6 +98,7 @@ typedef struct TestItemTag
 	
 }TEST_ITEM;
 
+
 // when entire system initilaztion, this config infomation will be dynamic load to GUI
 typedef struct AmPROTLConfigTag
 {
@@ -88,6 +111,7 @@ typedef struct AmPROTLConfigTag
 	char DUT_MODEL[50];	
 }AM_PROTL_CONFIG;
 
+
 enum TEST_FLAG_DEFINE
 {
 	TFLAG_SKIP,          
@@ -98,6 +122,7 @@ enum TEST_FLAG_DEFINE
 	TFLAG_END_RUN,//the item will be perform when all item be clear
 	TFLAG_TERMINATE_RUN,//The item will be perform when test end,after show PASS/FAIL
 };
+
 
 enum TEST_RESULT_FLAG_DEFINE
 {
@@ -116,5 +141,25 @@ typedef struct SFISItemTag
 	char Item[128];// index the item show sequence
 	char Data[512];
 }SFIS_ITEM;
+
+//----------------------------------------------------------------------------------------
+//Flag for whether to send data log of the test item to MYDAS
+#define LOG_TO_MYDAS 1
+#define NO_LOG_TO_MYDAS 0
+
+//------------------------------------------------------------------------------------------
+//parse flag table
+#define SN                    "SN"//
+#define ITEM_ID               "ITEM_ID"//
+#define ITEM_DESCRIPT         "ITEM_DES"
+#define DUT_CMD               "DUT_CMD"
+#define ITEM_ENABLE_FALG      "FLAG"//test item disable or enable switch
+#define PARALELL_FALG         "PARALELL_RUN"//set test item to parallel run
+#define RETRY_FLAG            "RETRY_TIME"//Set test item fail and retry time 
+#define RETRY_JUMP_ID_INDEX   "JUMP_ID_RETRY"// Set retry jump item id when test item retry
+#define ITEM_ERR_CODE         "ERR_CODE"//
+#define ITEM_ERR_CODE_DES     "ERR_CODE_DES"
+
+//------------------------------------------------------------------------------------------
 
 #endif
