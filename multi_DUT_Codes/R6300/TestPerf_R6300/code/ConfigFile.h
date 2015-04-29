@@ -15,7 +15,17 @@ public:
 	int JudgeStr(char *pBuf);
 	int ReadFileToMem(char *pfile_name);
     int GetLoadConfigFile(char *pfile_name);
-	
+	int LegalJudge();
+	int FindPaketSEflag(char *PBuf, size_t DataLen);
+	int InsertHashMap(char *pDesBUFF, char *pTagBuff, char *pRtnConBUFF, int  RtnConBUFFLen);
+	int CopyCaseStr(char *pDst, int DstLen, const char *pSrc, char caseCH);
+	int RemoveBeforeChrStr(char *pDst, int DstLen, const char *pSrc, char caseCH);
+	int opyCaseAfterStr(char *pDst, int DstLen, const char *pSrc, char caseCH);
+	unsigned char HEXConvert (unsigned char ucHEX);
+	int StrHEXConvert(char *psrc, int iCovertNum,unsigned int *pRtn);
+	int ParserGetPara(char *pDesBUFF, const char *pTagBuff, char *pRtnConBUFF, int  RtnConBUFFLen);
+
+
 public:
 	char *pContentBuf;
 	int TestItemSequence;
@@ -36,6 +46,6 @@ public:
 	STNED_FLAG StNeDFlag[500];
 
 	int GetTestStaInfo(char * pBuf, int bufL);
-	sem_t sem;	
+	sem_t sem;
 };
 
