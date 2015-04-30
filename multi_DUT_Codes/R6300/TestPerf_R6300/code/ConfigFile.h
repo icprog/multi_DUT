@@ -24,7 +24,11 @@ public:
 	unsigned char HEXConvert (unsigned char ucHEX);
 	int StrHEXConvert(char *psrc, int iCovertNum,unsigned int *pRtn);
 	int ParserGetPara(char *pDesBUFF, const char *pTagBuff, char *pRtnConBUFF, int  RtnConBUFFLen);
-
+    int GetTestStaInfo(char * pBuf, int bufL);
+    int GetParaContent(char *pBuf, int  Len);
+    int GetItem();
+    int GetSegment();
+    int PerformParse(char * pFileName);
 
 public:
 	char *pContentBuf;

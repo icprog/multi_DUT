@@ -536,4 +536,286 @@ int CConfigFile::ParserGetPara(char *pDesBUFF, const char *pTagBuff, char *pRtnC
 	}
 
 }
+
+
+int CConfigFile::GetTestStaInfo(char * pBuf, int bufL)
+{
+
+	char result[512];
+	int err=0;
+	if (!pBuf)
+	{
+		return 0;
+	}
+
+	if(ParserGetPara(pBuf, "POST", result, sizeof(result)))
+	{
+		strcpy(gTI.TestStaInfo.Post,result);
+	}
+	else
+	{
+		err++;
+	}
+
+	if(ParserGetPara(pBuf, "SECTOR", result, sizeof(result)))
+	{
+		strcpy(gTI.TestStaInfo.Sector,result);
+	}
+	else
+	{
+		err++;
+	}
+
+	if(ParserGetPara(pBuf, "LINE", result, sizeof(result)))
+	{
+		strcpy(gTI.TestStaInfo.ManufactureLine,result);
+	}
+	else
+	{
+		err++;
+	}
+
+	if(ParserGetPara(pBuf, "AREA", result, sizeof(result)))
+	{
+		strcpy(gTI.TestStaInfo.Area,result);
+	}
+	else
+	{
+		err++;
+	}
+	
+	if(ParserGetPara(pBuf, "LOG_FILE_PATH", result, sizeof(result)))
+	{
+		strcpy(gTI.TestStaInfo.TestLogPath,result);
+	}
+	else
+	{
+		err++;
+	}
+
+	if(ParserGetPara(pBuf, "STATION_NAME", result, sizeof(result)))
+	{
+		strcpy(gTI.TestStaInfo.TestStaName,result);
+	}
+	else
+	{
+		err++;
+	}
+	if(ParserGetPara(pBuf, "PC_NAME", result, sizeof(result)))
+	{
+	
+		strcpy(gTI.TestStaInfo.TesterPCName,result);
+	}
+	else
+	{
+		err++;
+	
+	}
+	if(ParserGetPara(pBuf, "PC_IP", result, sizeof(result)))
+	{
+	
+		strcpy(gTI.TestStaInfo.TesterPCIP,result);
+	}
+	else
+	{
+		err++;
+	
+	}
+	
+
+	if(ParserGetPara(pBuf, "STATION_ID", result, sizeof(result)))
+	{
+		gTI.TestStaInfo.TestStaID=atoi(result);
+	}
+	else
+	{
+		err++;
+	}
+
+	if(ParserGetPara(pBuf, "STATION_SN", result, sizeof(result)))
+	{
+		gTI.TestStaInfo.TestStaSN=atoi(result);
+	}
+	else
+	{
+		err++;
+	}
+
+	if(ParserGetPara(pBuf, "DUT_MODEL", result, sizeof(result)))
+	{
+		strcpy(gTI.DUTInfo.DUTName, result);
+	}
+	else
+	{
+		err++;
+	}
+
+
+	return err;
+}
+
+
+int CConfigFile::GetParaContent(char *pBuf, int  Len)
+{
+
+	TEST_ITEM TestItemTemp;// use get test item information
+	char BufTemp[20000];
+	char Line[2000]="";
+	char *token=0;
+	char *Config;
+	//int index=0;
+
+
+	char result[512];
+	char SecondResult[5120];
+	char ThirdResult[512];
+        char Item[512];
+
+	if (!pBuf)
+	{
+		return 0;
+	}
+	if (Len>(int)(sizeof(BufTemp)))
+	{
+		return 0;
+	}
+
+	strcpy(BufTemp,pBuf);
+	printf("One Test item:%s\n",BufTemp);
+	memset(result,0,512);
+	if(!ParserGetPara(pBuf, "ITEM_ID", result, sizeof(result)))
+	{
+		printf("No ITEM_ID\n");
+	}
+	else
+	{
+	CopyCaseAfterStr(Item, sizeof(Item),result,':');
+	Config=strstr(pBuf,Item);
+	Config--;
+	strcpy(Config,Config+strlen(Item)+1);
+
+	}
+	memset(result,0,512);
+	if(!ParserGetPara(pBuf, "DUT_CMD", result, sizeof(result)))
+	{
+		printf("No DUT_CMD\n");
+	}
+	memset(result,0,512);
+	if(!ParserGetPara(pBuf, "ERR_CODE", result, sizeof(result)))
+	{
+		printf("No ERR_CODE\n");
+	}
+	memset(result,0,512);
+	if(!ParserGetPara(pBuf, "ERR_CODE_DES", result, sizeof(result)))
+	{
+		printf("No ERR_CODE_DES\n");
+	}
+
+	memset(&TestItemTemp,0,sizeof(TestItemTemp));
+
+
+	TestItemTemp.Para.CreateHashMapPara();//create a new hash map object
+	token=strtok(pBuf, ";");
+	while( token != NULL )
+	{
+		//get each line from buff
+		memset(Line, 0, sizeof(Line));
+		strcpy(Line,token);
+		token = strtok( NULL, ";" );
+
+		memset(result,0,512);
+		memset(SecondResult,0,5120);
+
+                
+		CopyCaseStr(result, sizeof(result),Line,'=');
+        if(*result == 0)
+            break;    
+		RemoveBeforeChrStr(ThirdResult, sizeof(ThirdResult), result,' ');
+		RemoveBeforeChrStr(result, sizeof(result), ThirdResult,'\n');
+		CopyCaseAfterStr(SecondResult, sizeof(SecondResult),Line,'=');
+
+		TestItemTemp.Para.InsertHashMapPara(result,SecondResult);//insert hash map
+
+	}
+
+	sem_init(&sem,0,1);
+	sem_wait(&sem);
+	TEST_ITEM &testItem = TestItemTemp;
+	TItemList.push_back(testItem);
+	sem_post(&sem);
+	return 1;
+}
+
+int CConfigFile::GetItem()
+{
+	int iPopFlagIndex=0;
+	int FindFlag=9;
+	char Buf[1024];
+	int STFlag;
+	int ENDFlag;
+	int LineL;
+
+	while(!((StNeDFlag[iPopFlagIndex].StFlagIndex ==-2)&&(StNeDFlag[iPopFlagIndex].EdFlagIndex ==-2)))
+	{
+		if ((StNeDFlag[iPopFlagIndex].StFlagIndex !=-1)&&(StNeDFlag[iPopFlagIndex].EdFlagIndex !=-1))// we find start and end
+		{
+			STFlag=StNeDFlag[iPopFlagIndex].StFlagIndex;
+			ENDFlag=StNeDFlag[iPopFlagIndex].EdFlagIndex;
+			LineL=ENDFlag-STFlag;
+			memset(Buf,0,1024);
+			memcpy(Buf,pContentBuf+STFlag+1,LineL);
+			*(Buf+LineL-1)=0;// set string end flag
+
+			if (FindFlag)
+			{
+				GetTestStaInfo(Buf, LineL);
+				FindFlag=false;
+			}
+			else
+			{
+				GetParaContent(Buf, LineL);
+			}
+		}
+		else
+		{
+
+		}
+		iPopFlagIndex++;
+	}
+	return 1;
+}
+
+int CConfigFile::GetSegment()
+{
+
+	FindPaketSEflag(pContentBuf, strlen(pContentBuf));
+
+	if (!LegalJudge())
+	{
+		printf("Legal Judge fail.\n");
+		return 0;
+	}
+
+	GetItem();
+	if (pContentBuf)
+	{
+		free(pContentBuf);
+		pContentBuf=NULL;
+	}
+	return 1;
+}
+
+
+int CConfigFile::PerformParse(char * pFileName)
+{
+
+	if (!ReadFileToMem(pFileName))
+	{
+		return 0;
+	}
+	GetSegment();
+
+	return 1;
+}
+
 }
