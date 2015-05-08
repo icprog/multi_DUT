@@ -9,17 +9,26 @@ extern int TestEnd;
 extern bool gThreadExitFlag;
 extern pthread_t TestThreadID;
 
+/*
+	structor function
+*/
 CSocketConnection::CSocketConnection()
 {
 	int ret;
 	ret=sem_init(&hRevListMutex,0,1);
 }
 
+/*
+	destructor function
+*/
 CSocketConnection::~CSocketConnection()
 {
 
 }
 
+/*
+	define the data recive from where
+*/
 unsigned long CSocketConnection:: recive_from(char *pData, unsigned long size)
 {         
         int selectRet = revSocket.select_self();
@@ -41,6 +50,9 @@ unsigned long CSocketConnection:: recive_from(char *pData, unsigned long size)
 	
 }
 
+/*
+	insert request socket to the respone list
+*/
 int CSocketConnection::InsertRevList(DOT_SOC_BUF *p)
 {
 	sem_wait(&hRevListMutex);
@@ -48,6 +60,10 @@ int CSocketConnection::InsertRevList(DOT_SOC_BUF *p)
 	sem_post(&hRevListMutex);
 	return 1;
 }
+
+/*
+	send data to connection socket
+*/
 bool CSocketConnection::socketSend(char* sendbuffer)
 {
 	int duration=0;
@@ -74,6 +90,10 @@ bool CSocketConnection::socketSend(char* sendbuffer)
     
 	return true;
 }
+
+/*
+	create connection thread 
+*/
 bool CSocketConnection::Connection()
 {
 	SocketSer.create();
@@ -85,6 +105,10 @@ bool CSocketConnection::Connection()
 	else
 	    return false;
 }
+
+/*
+	get the connection request socket list 
+*/
 int CSocketConnection::GetRevList(char *p, int size)
 {
 	DOT_SOC_BUF msgtemp;
