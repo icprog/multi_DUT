@@ -12,6 +12,10 @@ public:
     CTestItemScript(void);
 public:
     ~CTestItemScript(void);
+	
+public:
+	int RunLedTest(TEST_ITEM *pTI);
+	
 };
 
 #endif
