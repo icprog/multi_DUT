@@ -14,6 +14,7 @@ public:
     ~CTestItemScript(void);
 	
 public:
+	/*Check the Led*/
 	int RunLedTest(TEST_ITEM *pTI);
 	
 };

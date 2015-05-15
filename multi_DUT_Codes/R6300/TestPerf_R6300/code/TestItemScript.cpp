@@ -39,7 +39,9 @@ typedef struct Led_spec
 
 extern CHashMapPara SFISDataHashMap;
 
-
+/*
+	Check the Led
+*/
 int CTestItemScript::RunLedTest(TEST_ITEM *pTI)
 {
     const char *delm=",";
@@ -189,7 +191,136 @@ int CTestItemScript::RunLedTest(TEST_ITEM *pTI)
             reValue = true;
      
     }
-
+	else 
+    {
+        //GetRGB
+        int R_frequency=0,G_frequency=0,B_frequency=0,I_frequency=0;
+        int failTime=0;
+        for(int i=0;i<now_led_spec.times;i++)
+        {
+            memset(logStrcat,0,sizeof(logStrcat));
+            sprintf(logStrcat,"RGB test time:%d:\n",i+1);
+            strcat(logPrint,logStrcat);
+            
+            for(int i=0;i<3;i++)
+            {
+                memset(strLEDBuf,0,strlen(strLEDBuf));
+                if(ledCheck.getFrequency(strLEDBuf,now_led_spec.channel)==0)
+                {
+                    pTI->Para.ModifyHashMapItem("ERR_DES_ADD",(char *)"Sensor Board is not connected");
+                    amprintf("Sensor Board is not connected!\n");
+                    return 2;
+                }
+                memset(logStrcat,0,sizeof(logStrcat));
+                sprintf(logStrcat,"Get frequency:%s\n",strLEDBuf);
+                strcat(logPrint,logStrcat);
+                if(strstr(strLEDBuf,"fail"))
+                {
+                    amprintf("Error:Can't get RGB frequence value once!\n");
+                }
+                else if(strstr(strLEDBuf,"error"))
+                {
+                    amprintf("Error led command:%s!\n",strLEDBuf);
+                }
+                else
+                    break;
+            }
+            if(strstr(strLEDBuf,"fail")||strstr(strLEDBuf,"error"))
+            {
+                amprintf("Error:Can't get RGB frequence value three times!\n");
+                failTime++;
+                continue;
+            }
+            char strRed[10] = "";
+            if(ledCheck.GetStrBetween(strLEDBuf,strRed,"R:","G:")==0)
+            {
+              amprintf("No R frequence value!\n");
+              failTime++;
+              continue;
+            }
+            int fRed = atoi(strRed);
+            fRed -= now_led_spec.r_limit;
+            R_frequency += fRed;
+            char strGreen[10] = "";
+            if(ledCheck.GetStrBetween(strLEDBuf,strGreen,"G:","B:")==0)
+            {
+              amprintf("No G frequence value!\n");
+              failTime++;
+              continue;
+            }
+            int fGreen = atoi(strGreen);
+            fGreen -= now_led_spec.g_limit;
+            G_frequency += fGreen;
+            char strBlue[10] = "";
+            if(ledCheck.GetStrBetween(strLEDBuf,strBlue,"B:","I:")==0)
+            {
+              amprintf("No B frequence value!\n");
+              failTime++;
+              continue;
+            }
+            int fBlue = atoi(strBlue);
+            fBlue -= now_led_spec.b_limit;
+            B_frequency += fBlue;
+            char strIight[10] = "";
+            if(ledCheck.GetStrBetween(strLEDBuf,strIight,"I:",";")==0)
+            {
+              amprintf("No I frequence value!\n");
+              failTime++;
+              continue;
+            }
+            int fIight = atoi(strIight);
+            fIight -= now_led_spec.i_limit;
+            I_frequency += fIight;
+            memset(logStrcat,0,sizeof(logStrcat));
+            sprintf(logStrcat,"     Frequency abandon sunlight:R:%d G:%d B:%d I:%d;\r\n",fRed,fGreen,fBlue,fIight);
+            strcat(logPrint,logStrcat);
+        }
+        
+        if((now_led_spec.times-failTime)==0)
+        {
+            pTI->Para.ModifyHashMapItem("ERR_DES_ADD",(char *)"Get RGB  value fail");
+            amprintf("Error:Can't get led data from Serial Port!\n");
+            return 2;
+        }
+        R_frequency = R_frequency/(now_led_spec.times-failTime);
+        G_frequency = G_frequency/(now_led_spec.times-failTime);
+        B_frequency = B_frequency/(now_led_spec.times-failTime);
+        I_frequency = I_frequency/(now_led_spec.times-failTime);
+        
+        //strcpy(strLEDBuf,"R:10000Hz G:200000Hz B:10000Hz I:220000Hz;");
+        memset(strLEDBuf,0,strlen(strLEDBuf));
+        sprintf(strLEDBuf,"R:%dHz G:%dHz B:%dHz I:%dHz;",R_frequency,G_frequency,B_frequency,I_frequency);
+       
+        if(now_led_spec.item==LED_GREEN)
+        {
+            reValue=ledCheck.CheckGreenLED(strLEDBuf,now_led_spec.i_spec);
+           
+        }
+        else if(now_led_spec.item==LED_BLUE)
+        {
+            reValue=ledCheck.CheckBlueLED(strLEDBuf,now_led_spec.i_spec);
+           
+        }
+        else if(now_led_spec.item==LED_AMBER)
+        {
+            reValue=ledCheck.CheckAmberLED(strLEDBuf,now_led_spec.i_spec);
+            
+        }
+         else if(now_led_spec.item==LED_RED)
+        {
+            reValue=ledCheck.CheckRedLED(strLEDBuf,now_led_spec.i_spec);
+           
+        }
+          else if(now_led_spec.item==LED_WHITE)
+        {
+            reValue=ledCheck.CheckWhiteLED(strLEDBuf,now_led_spec.i_spec);
+           
+        }
+        memset(logStrcat,0,sizeof(logStrcat));
+        sprintf(logStrcat,"     average RGBI value:%s,I spec:%d.", strLEDBuf,now_led_spec.i_spec);
+        strcat(logPrint,logStrcat);
+            
+    } 
         
     amprintf("%s",logPrint);
 
