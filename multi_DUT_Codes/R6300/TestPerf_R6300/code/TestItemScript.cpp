@@ -39,6 +39,57 @@ typedef struct Led_spec
 
 extern CHashMapPara SFISDataHashMap;
 
+//for PassPhrase ruler check
+#define C_MAX_KEY_STR_SIZE                  (32)
+static char Adjectives[][C_MAX_KEY_STR_SIZE] = 
+{
+    "ancient",      "aquatic",      "basic",    "black",        "blue",
+    "brave",        "breezy",       "bright",   "calm",         "cheerful",
+    "classy",       "clever",       "cloudy",   "crispy",       "curly",
+    "daily",        "delightful",   "dizzy",    "dynamic",      "elated",
+    "elegant",      "excited",      "exotic",   "fancy",        "fearless",
+    "festive",      "fluffy",       "fresh",    "friendly",     "fuzzy",
+    "gentle",       "gigantic",     "graceful", "grand",        "great",
+    "green",        "happy",        "heavy",    "helpful",      "husky",
+    "icy",          "imaginary",    "jagged",   "jolly",        "joyous",
+    "kind",         "large",        "little",   "lively",       "lucky",
+    "magical",      "melodic",      "mighty",   "misty",        "modern",
+    "narrow",       "new",          "nifty",    "noisy",        "odd",
+    "orange",       "pastel",       "perfect",  "phobic",       "pink",
+    "precious",     "purple",       "quaint",   "quick",        "quiet",
+    "rapid",        "red",          "rocky",    "round",        "royal",
+    "rustic",       "shiny",        "silent",   "silky",        "silly",
+    "smiling",      "slow",         "smooth",   "strong",       "sunny",
+    "sweet",        "thirsty",      "tiny",     "thoughtful",   "uneven",
+    "unusual",      "vanilla",      "vast",     "watery",       "wide",
+    "witty",        "wonderful",    "yellow",   "young",        "zany",
+};
+
+static char Nouns[][C_MAX_KEY_STR_SIZE] = 
+{
+    "airplane",     "apple",        "balloon",  "banana",       "breeze",
+    "bird",         "boat",         "box",      "bug",          "butter",
+    "cartoon",      "canoe",        "carrot",   "cello",        "chair",
+    "cheese",       "coconut",      "comet",    "curtain",      "cream",
+    "daisy",        "diamond",      "earth",    "elephant",     "fire",
+    "flamingo",     "flower",       "flute",    "giant",        "grasshopper",
+    "hat",          "hill",         "iris",     "ink",          "jade",
+    "jungle",       "kangaroo",     "kayak",    "lake",         "lightning",
+    "lotus",        "mango",        "mint",     "moon",         "mountain",
+    "nest",         "ocean",        "onion",    "octopus",      "orchestra",
+    "owl",          "lotus",        "mango",    "phoenix",      "piano",
+    "pineapple",    "planet",       "pond",     "potato",       "prairie",
+    "quail",        "rabbit",       "raccoon",  "raven",        "river",
+    "road",         "rosebud",      "sea",      "ship",         "shoe",
+    "shrub",        "skates",       "sky",      "socks",        "sparrow",
+    "spider",       "squash",       "squirrel", "star",         "street",
+    "sun",          "table",        "teapot",   "trail",        "train",
+    "tree",         "tomato",       "trumpet",  "tuba",         "tulip",
+    "umbrella",     "unicorn",      "valley",   "vase",         "violet",
+    "violin",       "water",        "window",     "wind",       "zoo",
+};
+
+
 /*
 	Check the Led
 */
@@ -332,3 +383,99 @@ int CTestItemScript::RunLedTest(TEST_ITEM *pTI)
           
 }
 
+/*
+	Check DUT boot up
+*/
+int CTestItemScript::RunConnectionTest(TEST_ITEM *pTI)
+{       
+    char *BeforeInt,*AfterInt,chara[10],result[800];
+    char log[1024];
+    memset(log,0,sizeof(log));
+    memset(chara,0,10);
+    memset(result,0,800);
+    int returnValue =  RunCommand(pTI,result);
+    if(returnValue==1)
+    {
+        BeforeInt=strstr(result,"packets transmitted,");
+        if(!BeforeInt)
+        {
+            if(strstr(result,"\n"))
+        	{
+            	strncpy(log,result,strstr(result,"\n")-result);
+            	pTI->Para.ModifyHashMapItem("ERR_DES_ADD",log);
+            }
+            else
+            {
+               pTI->Para.ModifyHashMapItem("ERR_DES_ADD",result); 
+            }
+	        amprintf("Error message:%s",result);
+            return 2;
+        }
+        BeforeInt+=(strlen("packets transmitted,")+1);
+        AfterInt=strstr(result,"packets received,");
+        AfterInt-=1;
+        strncpy(chara,BeforeInt,(AfterInt-BeforeInt));
+        if(atoi(chara)!=0)
+            return 1;
+        else
+            return 0;
+    }
+
+    else if(returnValue==3)
+        return 3;
+    else
+        return 2;
+}
+
+
+/*
+	Check DUT SN with message from SFIS
+*/
+int CTestItemScript::RunSNTest(TEST_ITEM *pTI)
+{       
+    int returnValue = EnsureSFISResult(pTI,DUT_CMD,SN,LOG_TO_MYDAS);
+    return returnValue;
+}
+
+
+/*
+	Check 2g PassPhrase
+*/
+int CTestItemScript::Run2gPassPhraseRuleTest(TEST_ITEM *pTI)
+{       
+    char *sfis = NULL,passPhrase[20]="";
+    sfis=SFISDataHashMap.GetHashMapStrPara("Password_2G");
+    if(!sfis)
+    {
+        char sfisStr[20]= "";
+		sprintf(sfisStr,"No \"Password_2G\" SFIS item");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",sfisStr);
+		amprintf("Error:%s!",sfisStr);
+        return 2;
+    }
+    strcpy(passPhrase,sfis);
+    amprintf("2g PassPhrase get from SFIS:%s\n",passPhrase);
+    return Check_Passphrase(passPhrase);
+    
+}
+
+
+/*
+	Check 5g PassPhrase
+*/
+int CTestItemScript::Run5gPassPhraseRuleTest(TEST_ITEM *pTI)
+{       
+    char *sfis = NULL,passPhrase[20]="";
+    sfis=SFISDataHashMap.GetHashMapStrPara("Password_5G");
+    if(!sfis)
+    {
+        char sfisStr[20]= "";
+		sprintf(sfisStr,"No \"Password_5G\" SFIS item");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",sfisStr);
+		amprintf("Error:%s!",sfisStr);
+        return 2;
+    }
+    strcpy(passPhrase,sfis);
+    amprintf("5g PassPhrase get from SFIS:%s\n",passPhrase);
+    return Check_Passphrase(passPhrase);
+}
