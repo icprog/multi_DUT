@@ -479,3 +479,82 @@ int CTestItemScript::Run5gPassPhraseRuleTest(TEST_ITEM *pTI)
     amprintf("5g PassPhrase get from SFIS:%s\n",passPhrase);
     return Check_Passphrase(passPhrase);
 }
+
+/*
+	Check DUT MAC address with message from SFIS
+*/
+int CTestItemScript::RunLMACTest(TEST_ITEM *pTI)
+{       
+    int returnValue = EnsureSFISResult(pTI,DUT_CMD,"ETHERNETMAC",LOG_TO_MYDAS);
+    return returnValue;
+}
+
+
+/*
+	Check DUT pin with message from SFIS
+*/
+int CTestItemScript::RunPINTest(TEST_ITEM *pTI)
+{       
+    int returnValue = EnsureSFISResult(pTI,DUT_CMD,"PIN",LOG_TO_MYDAS);
+    return returnValue;
+}
+
+
+/*
+	Check DUT 2g SSID with message from SFIS
+*/
+int CTestItemScript::Run2gSSIDTest(TEST_ITEM *pTI)
+{
+    int returnValue = EnsureRouterInfoResult(pTI,nowDUT.SSID2G,"SSID_2G");
+    return returnValue;
+}
+
+
+/*
+	Check DUT 5g SSID with message from SFIS
+*/
+int CTestItemScript::Run5gSSIDTest(TEST_ITEM *pTI)
+{
+    int returnValue = EnsureRouterInfoResult(pTI,nowDUT.SSID5G,"SSID_5G");
+    return returnValue;
+}
+
+
+/*
+	Check DUT 2g Passphrase with message from SFIS
+*/
+int CTestItemScript::Run2gPassphraseTest(TEST_ITEM *pTI)
+{
+    int returnValue = EnsureRouterInfoResult(pTI,nowDUT.PassPhrase2G,"Password_2G");
+    return returnValue;
+}
+
+/*
+	Check DUT 5g Passphrase with message from SFIS
+*/
+int CTestItemScript::Run5gPassphraseTest(TEST_ITEM *pTI)
+{
+    int returnValue = EnsureRouterInfoResult(pTI,nowDUT.PassPhrase5G,"Password_5G");
+    return returnValue;
+}
+
+/*
+	Check DUT boardid
+*/
+int CTestItemScript::RunBoardIdTest(TEST_ITEM *pTI)
+{       
+    int returnValue = EnsureConfigResult(pTI,DUT_CMD,"SPEC",LOG_TO_MYDAS);
+    return returnValue;
+}
+
+
+/*
+	Check DUT Sku
+*/
+int CTestItemScript::RunSkuTest(TEST_ITEM *pTI)
+{
+    int returnValue = EnsureConfigResult(pTI,DUT_CMD,"SPEC",NO_LOG_TO_MYDAS);
+    return returnValue;
+}
+
+

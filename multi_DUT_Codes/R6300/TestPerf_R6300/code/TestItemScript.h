@@ -29,6 +29,30 @@ public:
 	/*Check 5G PassPhrase Rule*/
 	int Run5gPassPhraseRuleTest(TEST_ITEM *pTI);
 	
+	/*Check MAC*/
+	int RunLMACTest(TEST_ITEM *pTI);
+	
+	/*Check Pin code*/
+	int RunPINTest(TEST_ITEM *pTI);
+	
+	/*Check 2G SSID*/
+	int Run2gSSIDTest(TEST_ITEM *pTI);
+	
+	/*Check 5G SSID*/
+	int Run5gSSIDTest(TEST_ITEM *pTI);
+	
+	/*Check 2G passphrase*/
+	int Run2gPassphraseTest(TEST_ITEM *pTI);
+	
+	/*Check 5G passphrase*/
+	int Run5gPassphraseTest(TEST_ITEM *pTI);
+	
+	/*Check BoardID*/
+	int RunBoardIdTest(TEST_ITEM *pTI);
+	
+	/*Check SKU*/
+	int RunSkuTest(TEST_ITEM *pTI);
+	
 };
 
 #endif
