@@ -53,6 +53,9 @@ public:
 	/*Check SKU*/
 	int RunSkuTest(TEST_ITEM *pTI);
 	
+	/*Check SW time*/
+	int RunSwTimeTest(TEST_ITEM *pTI);
+	
 };
 
 #endif

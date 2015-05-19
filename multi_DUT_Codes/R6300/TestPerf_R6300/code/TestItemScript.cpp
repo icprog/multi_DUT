@@ -558,3 +558,86 @@ int CTestItemScript::RunSkuTest(TEST_ITEM *pTI)
 }
 
 
+/*
+	Check DUT Time
+*/
+int CTestItemScript::RunSwTimeTest(TEST_ITEM *pTI)
+{
+    char result[5200],SpecValue[5100],log[1024],swTime[100],*specValue=NULL;
+    SFIS_ITEM SfisItemAdd;
+    memset(result,0,sizeof(result));
+    memset(SpecValue,0,sizeof(SpecValue));
+    memset(swTime,0,sizeof(swTime));
+    memset(SfisItemAdd.Item,0,sizeof(SfisItemAdd.Item));
+	memset(SfisItemAdd.Data,0,sizeof(SfisItemAdd.Data));
+	memset(pTI->Result.Result,0,sizeof(pTI->Result.Result));
+    memset(pTI->Result.ResultAim,0,sizeof(pTI->Result.ResultAim));
+	memset(log,0,sizeof(log));
+    int returnValue = RunExeFile(pTI,result,DUT_CMD);
+    if(returnValue==1)
+    {
+        if(strncmp(result,"received:",strlen("received:")))
+        {
+            if(strstr(result,"\n"))
+        	{
+            	strncpy(log,result,strstr(result,"\n")-result);
+            	pTI->Para.ModifyHashMapItem("ERR_DES_ADD",log);
+            }
+            else
+            {
+                pTI->Para.ModifyHashMapItem("ERR_DES_ADD",result); 
+            }
+	        amprintf("Error message:%s",result);
+            return 2;
+        }
+        char *resultStart=NULL;
+        char *resultEnd=NULL;
+        resultStart = strstr(result,"Time :");
+        
+        if(resultStart)
+        {
+            resultEnd = strstr(resultStart,"\n");
+            if(!resultEnd)
+            {
+                char dutStr[50]= "";
+        		sprintf(dutStr,"Can't find Sw Time in DUT message");
+        		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+        	    amprintf("Error:%s!\n",dutStr);
+                return 2;
+            }
+            resultStart += strlen("Time :")+1;
+            strncpy(swTime,resultStart,resultEnd-resultStart);
+            strcpy(pTI->Result.Result,swTime);
+            amprintf("Sw Time in DUT:%s\n",swTime);
+        }
+        else
+        {
+            char dutStr[50]= "";
+    		sprintf(dutStr,"Can't find Sw Time in DUT message");
+    		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+    	    amprintf("Error:%s!\n",dutStr);
+            return 2;
+        }
+         
+        specValue = pTI->Para.GetHashMapStrPara("SPEC");
+        if(!specValue)
+        {
+            char specStr[20]= "";
+    		sprintf(specStr,"No \"SPEC\"");
+    		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	    amprintf("Error:%s!\n",specStr);
+            return 3;
+        }
+        strncpy(SpecValue,specValue,strlen(specValue));
+        strcpy(pTI->Result.ResultAim,SpecValue);
+        amprintf("Sw Time in Config=%s\n",SpecValue);
+        if(!strcmp(SpecValue,swTime))
+            return 1;
+        else
+            return 0;
+    }
+    else
+        return 3;
+       
+}
+
