@@ -641,3 +641,94 @@ int CTestItemScript::RunSwTimeTest(TEST_ITEM *pTI)
        
 }
 
+/*
+	Check DUT Release version message 
+*/
+int CTestItemScript::RunReleaseVsTest(TEST_ITEM *pTI)
+{       
+    char result[5200],SpecValue[5100],log[1024],fwVersion[1024],*specValue=NULL;
+    SFIS_ITEM SfisItemAdd;
+    memset(result,0,sizeof(result));
+    memset(SpecValue,0,sizeof(SpecValue));
+    memset(fwVersion,0,sizeof(fwVersion));
+    memset(SfisItemAdd.Item,0,sizeof(SfisItemAdd.Item));
+	memset(SfisItemAdd.Data,0,sizeof(SfisItemAdd.Data));
+	memset(log,0,sizeof(log));
+    int returnValue = RunExeFile(pTI,result,DUT_CMD);
+    if(returnValue==1)
+    {
+        if(strncmp(result,"received:",strlen("received:")))
+        {
+            if(strstr(result,"\n"))
+        	{
+            	strncpy(log,result,strstr(result,"\n")-result);
+            	pTI->Para.ModifyHashMapItem("ERR_DES_ADD",log);
+            }
+            else
+            {
+                pTI->Para.ModifyHashMapItem("ERR_DES_ADD",result); 
+            }
+	        amprintf("Error message:%s",result);
+            return 2;
+        }
+        char *resultStart=NULL;
+        char *resultEnd=NULL;
+        //resultStart = strstr(result,"\n")+1;
+        resultStart = strstr(result,"\n");
+        memset(pTI->Result.Result,0,sizeof(pTI->Result.Result));
+        if(resultStart)
+        {
+            if(strlen(resultStart)<2)
+            {
+                char dutStr[50]= "";
+        		sprintf(dutStr,"Can't find Release Version in DUT message");
+        		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+        	    amprintf("Erro1r:%s!\n",dutStr);
+                return 2;
+            }
+            resultStart++;
+            resultEnd = strstr(resultStart,"\n");
+            if(!resultEnd)
+            {
+                char dutStr[50]= "";
+        		sprintf(dutStr,"Can't find Release Version in DUT message");
+        		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+        	    amprintf("Error2:%s!\n",dutStr);
+                return 2;
+            }
+            strncpy(fwVersion,resultStart,resultEnd-resultStart);   
+            strcpy(pTI->Result.Result,fwVersion);
+            amprintf("Release Version in DUT:%s\n",pTI->Result.Result);
+         }
+        else
+        {
+            strcpy(pTI->Result.Result,"No Val");
+        }
+        specValue = pTI->Para.GetHashMapStrPara("SPEC");
+        if(!specValue)
+        {
+            char specStr[20]= "";
+    		sprintf(specStr,"No \"SPEC\"");
+    		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	    amprintf("Error:%s!\n",specStr);
+            return 3;
+        }
+        memset(pTI->Result.ResultAim,0,sizeof(pTI->Result.ResultAim));
+        strcpy(pTI->Result.ResultAim,specValue);
+        strcpy(SfisItemAdd.Item,"FW");
+        strcpy(SfisItemAdd.Data,fwVersion);
+        SFISDataHashMap.InsertHashMapPara(SfisItemAdd.Item,SfisItemAdd.Data);
+        strncpy(SpecValue,specValue,strlen(specValue));
+        amprintf("Release Version in Config=%s\n",SpecValue);
+        if(!strcmp(SpecValue,fwVersion))
+            return 1;
+         else
+            return 0;
+    }
+    else if(returnValue==3)
+        return 3;
+    else
+        return 2;
+
+}
+
