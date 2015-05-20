@@ -732,3 +732,182 @@ int CTestItemScript::RunReleaseVsTest(TEST_ITEM *pTI)
 
 }
 
+/*
+	Check DUT Language
+*/
+int CTestItemScript::RunLanguageTest(TEST_ITEM *pTI)
+{
+    char fullCmd[128],Line[200],result[5200],*cmdPoint=NULL,*specPoint=NULL,cmdOut[256],*cmdEnd=NULL;
+    FILE *fread=NULL;
+    memset(fullCmd,0,sizeof(fullCmd));
+    memset(Line,0,sizeof(Line));
+    memset(result,0,sizeof(result));
+    memset(cmdOut,0,sizeof(cmdOut));
+    cmdPoint = pTI->Para.GetHashMapStrPara("DUT_CMD");
+    if(!cmdPoint)
+     {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"DUT_CMD\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    sprintf(fullCmd,"%s |tee out.txt",cmdPoint);
+    amprintf("command:%s\n",fullCmd);
+    system(fullCmd);
+    
+    fread = fopen("out.txt","r");
+    if(fgets(Line,200,fread)==NULL)
+	{
+        fclose(fread);
+        char dutStr[50]= "";
+        sprintf(dutStr,"No output of the command");
+        pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+        amprintf("Error:%s!\n",dutStr);
+        return 2;
+	}
+	else
+	{
+		strncat(result,Line,strlen(Line));
+	}
+	while(!feof(fread))
+	{
+		memset(Line,0,sizeof(Line));
+		if(fgets(Line,200,fread)==NULL)
+		{
+			break;
+		}
+		else
+		{
+			strncat(result,Line,strlen(Line));
+		}
+	}
+	amprintf("telnet output:%s\n",result);
+    fclose(fread);
+    char *languagePoint = NULL;
+    languagePoint = strstr(result,"getchksum 6");
+    if(!languagePoint)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find language message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error1:%s!\n",dutStr);
+        return 2;
+    }
+    char *languagePoint1 = NULL;
+    languagePoint += strlen("getchksum 6") -1;
+    languagePoint1 = strstr(languagePoint,"getchksum 6");
+    if( languagePoint1)
+    {
+        languagePoint = languagePoint1;
+    }
+    languagePoint = strstr(languagePoint,"\n");
+    if(!languagePoint)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find language message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error2:%s!\n",dutStr);
+        return 2;
+    }
+    if(strlen(languagePoint) == 1)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find language message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error3:%s!\n",dutStr);
+        return 2;
+    }
+    languagePoint++;
+    cmdEnd = strstr(languagePoint,"#");
+    if(!cmdEnd)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find language message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error4:%s!\n",dutStr);
+        return 2;
+    }
+    strncpy(cmdOut,languagePoint,cmdEnd - languagePoint);
+    amprintf("command output:%s",cmdOut);
+    specPoint = pTI->Para.GetHashMapStrPara("SPEC1");
+    if(!specPoint)
+    {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"SPEC1\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    amprintf("SPEC 1 in Config:%s!\n",specPoint);
+    if(!strstr(cmdOut,specPoint))
+        return 0;
+    specPoint = NULL;
+    specPoint = pTI->Para.GetHashMapStrPara("SPEC2");
+    if(!specPoint)
+    {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"SPEC2\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    amprintf("SPEC 2 in Config:%s!\n",specPoint);
+    if(!strstr(cmdOut,specPoint))
+        return 0;
+    specPoint = NULL;
+    specPoint = pTI->Para.GetHashMapStrPara("SPEC3");
+    if(!specPoint)
+    {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"SPEC3\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    amprintf("SPEC 3 in Config:%s!\n",specPoint);
+    if(!strstr(cmdOut,specPoint))
+        return 0;
+    specPoint = NULL; 
+    specPoint = pTI->Para.GetHashMapStrPara("SPEC4");
+    if(!specPoint)
+    {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"SPEC4\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    amprintf("SPEC 4 in Config:%s!\n",specPoint);
+    if(!strstr(cmdOut,specPoint))
+        return 0;
+    specPoint = NULL;
+    specPoint = pTI->Para.GetHashMapStrPara("SPEC5");
+    if(!specPoint)
+    {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"SPEC5\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    amprintf("SPEC 5 in Config:%s!\n",specPoint);
+    if(!strstr(cmdOut,specPoint))
+        return 0;
+    specPoint = NULL;
+    specPoint = pTI->Para.GetHashMapStrPara("SPEC6");
+    if(!specPoint)
+    {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"SPEC6\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    amprintf("SPEC 6 in Config:%s!\n",specPoint);
+    if(!strstr(cmdOut,specPoint))
+        return 0;      
+    return 1;
+    
+}
+

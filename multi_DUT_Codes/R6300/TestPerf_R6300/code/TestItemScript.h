@@ -59,6 +59,9 @@ public:
 	/*Check DUT Release version message*/
 	int RunReleaseVsTest(TEST_ITEM *pTI);
 	
+	/*Check DUT Language*/
+	int RunLanguageTest(TEST_ITEM *pTI);
+	
 };
 
 #endif
