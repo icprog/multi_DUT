@@ -911,3 +911,176 @@ int CTestItemScript::RunLanguageTest(TEST_ITEM *pTI)
     
 }
 
+/*
+	Check DUT GIGA Link rate
+*/
+int CTestItemScript::RunGigaLinkTest(TEST_ITEM *pTI)
+{
+    char fullCmd[128],Line[200],result[5200],*cmdPoint=NULL,*specPoint=NULL,cmdOut[256],*cmdEnd=NULL;
+    FILE *fread=NULL;
+    memset(fullCmd,0,sizeof(fullCmd));
+    memset(Line,0,sizeof(Line));
+    memset(result,0,sizeof(result));
+    memset(cmdOut,0,sizeof(cmdOut));
+    cmdPoint = pTI->Para.GetHashMapStrPara("DUT_CMD");
+    if(!cmdPoint)
+     {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"DUT_CMD\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    sprintf(fullCmd,"%s |tee out.txt",cmdPoint);
+    amprintf("command:%s\n",fullCmd);
+    system(fullCmd);
+    
+    fread = fopen("out.txt","r");
+    if(fgets(Line,200,fread)==NULL)
+	{
+        fclose(fread);
+        char dutStr[50]= "";
+        sprintf(dutStr,"No output of the command");
+        pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+        amprintf("Error:%s!\n",dutStr);
+        return 2;
+	}
+	else
+	{
+		strncat(result,Line,strlen(Line));
+	}
+	while(!feof(fread))
+	{
+		memset(Line,0,sizeof(Line));
+		if(fgets(Line,200,fread)==NULL)
+		{
+			break;
+		}
+		else
+		{
+			strncat(result,Line,strlen(Line));
+		}
+	}
+	amprintf("telnet output:%s\n",result);
+    fclose(fread);
+    char *linkPoint = NULL;
+    linkPoint = strstr(result,"et robord 1 0");
+    if(!linkPoint)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find link message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error1:%s!\n",dutStr);
+        return 2;
+    }
+    char *linkPoint1 = NULL;
+    linkPoint += strlen("et robord 1 0") -1;
+    linkPoint1 = strstr(linkPoint,"et robord 1 0");
+    if(linkPoint1)
+    {
+        linkPoint = linkPoint1;
+    }
+    linkPoint = strstr(linkPoint,"\n");
+    if(!linkPoint)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find link message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error2:%s!\n",dutStr);
+        return 2;
+    }
+    if(strlen(linkPoint) == 1)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find link message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error3:%s!\n",dutStr);
+        return 2;
+    }
+    linkPoint++;
+    cmdEnd = strstr(linkPoint,"#");
+    if(!cmdEnd)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find link message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error4:%s!\n",dutStr);
+        return 2;
+    }
+    strncpy(cmdOut,linkPoint,cmdEnd - linkPoint);
+    amprintf("command output:%s",cmdOut);
+    specPoint = pTI->Para.GetHashMapStrPara("SPEC1");
+    if(!specPoint)
+    {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"SPEC1\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error5:%s!\n",specStr);
+        return 3;
+    }
+    amprintf("SPEC 1 in Config:%s!\n",specPoint);
+    if(!strstr(cmdOut,specPoint))
+        return 0;
+    linkPoint = NULL;
+    linkPoint = strstr(cmdEnd,"et robord 1 4");
+    memset(cmdOut,0,sizeof(cmdOut));
+    if(!linkPoint)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find Gia message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error6:%s!\n",dutStr);
+        return 2;
+    }
+    linkPoint1 = NULL;
+    linkPoint += strlen("et robord 1 4") -1;
+    linkPoint1 = strstr(linkPoint,"et robord 1 4");
+    if( linkPoint1)
+    {
+        linkPoint = linkPoint1;
+    }
+    linkPoint = strstr(linkPoint,"\n");
+    if(!linkPoint)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find Gia message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error7:%s!\n",dutStr);
+        return 2;
+    }
+    if(strlen(linkPoint) == 1)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find Gia message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error8:%s!\n",dutStr);
+        return 2;
+    }
+    linkPoint++;
+    cmdEnd = strstr(linkPoint,"#");
+    if(!cmdEnd)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find link message in DUT message");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",dutStr);
+	    amprintf("Error9:%s!\n",dutStr);
+        return 2;
+    }
+    strncpy(cmdOut,linkPoint,cmdEnd - linkPoint);
+    amprintf("command output:%s",cmdOut);
+    specPoint = NULL;
+    specPoint = pTI->Para.GetHashMapStrPara("SPEC2");
+    if(!specPoint)
+    {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"SPEC2\"");
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	amprintf("Error10:%s!\n",specStr);
+        return 3;
+    }
+    amprintf("SPEC 2 in Config:%s!\n",specPoint);
+    if(!strstr(cmdOut,specPoint))
+        return 0;
+    return 1;
+}
+

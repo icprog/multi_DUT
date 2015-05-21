@@ -62,6 +62,9 @@ public:
 	/*Check DUT Language*/
 	int RunLanguageTest(TEST_ITEM *pTI);
 	
+	/*Check DUT GIGA Link rate*/
+	int RunGigaLinkTest(TEST_ITEM *pTI);
+	
 };
 
 #endif
