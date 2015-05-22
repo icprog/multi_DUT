@@ -1185,3 +1185,100 @@ int CTestItemScript::RunUsbAttachTest(TEST_ITEM *pTI)
     return returnValue;
 }
 
+/*
+	check USB throughput 
+*/
+int CTestItemScript::RunUsbThputTest(TEST_ITEM *pTI)
+{
+    char result[1024],Line[200],log[1024],*rate=NULL,*rateEnd=NULL,*errLineStart=NULL,*errLineEnd=NULL;
+    int SleepTime=0;
+    memset(log,0,sizeof(log));
+    char SpecValue[100],*spec;
+    int returnValue =EnsureResult(pTI,"enable bftpd OK",DUT_CMD);
+    SleepTime = pTI->Para.GetHashMapIntPara("SLEEP_MICROSECOND");
+    usleep(SleepTime);
+    if(returnValue==1)
+    {
+        
+        memset(SpecValue,0,sizeof(SpecValue));
+        memset(Line,0,200);
+        memset(result,0,1024);
+        int returnValue = RunExeFile(pTI,result,"DUT_CMD1");
+        system("rm data.bin");
+        if(returnValue==1)
+        {
+        
+            rateEnd = strstr(result,"MB/s");
+            if(!rateEnd)
+            {
+                rateEnd = strstr(result,"KB/s");
+                if(!rateEnd)
+                {
+                    rateEnd = strstr(result,"B/s");
+                    if(!rateEnd)
+                    {
+                        errLineStart = strstr(result,"Command ");
+                        if(errLineStart)
+                    	{
+                        	errLineEnd = strstr(errLineStart,"\n");
+                        	if(!errLineEnd)
+                    	    {
+                                pTI->Para.ModifyHashMapItem("ERR_DES_ADD",(char *)"Some uncertain error"); 
+                    	    }
+                        	strncpy(log,errLineStart,errLineEnd - errLineStart);
+                        	pTI->Para.ModifyHashMapItem("ERR_DES_ADD",log);
+                        }
+                        else
+                        {
+                           pTI->Para.ModifyHashMapItem("ERR_DES_ADD",(char *)"Some uncertain error"); 
+                        }
+	                    amprintf("Error message:%s",result);
+                        return 2;
+                    }
+                }
+            }
+            while(!isdigit(*rateEnd))
+            {
+                rateEnd--;
+            }
+            *(++rateEnd)='\0';
+            rate = rateEnd;
+            while(!isblank(*rate))
+            {
+                rate--;
+            }
+            ++rate;
+            spec = pTI->Para.GetHashMapStrPara("SPEC");
+            if(!spec)
+             {
+                char specStr[20]= "";
+    		    sprintf(specStr,"No \"SPEC\"");
+    		    pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	        amprintf("Error:%s!\n",specStr);
+                return 3;
+            }
+        
+            strncpy(SpecValue,spec,strlen(spec));
+            amprintf("Usb thput in Config=%s\n",SpecValue);
+            amprintf("usb thput in fact=%d\n",atoi(rate));
+            memset(pTI->Result.Result,0,sizeof(pTI->Result.Result));
+            strcpy(pTI->Result.Result,rate);
+            memset(pTI->Result.ResultAim,0,sizeof(pTI->Result.ResultAim));
+            strcpy(pTI->Result.ResultAim,SpecValue);
+            if(atoi(rate)<atoi(SpecValue))
+                return 0;
+            else
+                return 1;
+        }
+        else if(returnValue==3)
+            return 3;
+        else
+            return 2;
+        
+    }
+    else
+    {
+        return returnValue;
+    }
+}
+

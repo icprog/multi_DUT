@@ -74,6 +74,9 @@ public:
 	/*check USB attach status*/
 	int RunUsbAttachTest(TEST_ITEM *pTI);
 	
+	/*check USB throughput*/
+	int RunUsbThputTest(TEST_ITEM *pTI);
+	
 };
 
 #endif
