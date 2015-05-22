@@ -65,6 +65,15 @@ public:
 	/*Check DUT GIGA Link rate*/
 	int RunGigaLinkTest(TEST_ITEM *pTI);
 	
+	/*Check DUT CFE Version*/
+	int RunCFEVsTest(TEST_ITEM *pTI);
+	
+	/*Check pot erase*/
+	int RunPotEraseTest(TEST_ITEM *pTI);
+	
+	/*check USB attach status*/
+	int RunUsbAttachTest(TEST_ITEM *pTI);
+	
 };
 
 #endif
