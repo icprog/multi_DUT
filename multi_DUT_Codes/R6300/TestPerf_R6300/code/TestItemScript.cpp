@@ -1282,3 +1282,182 @@ int CTestItemScript::RunUsbThputTest(TEST_ITEM *pTI)
     }
 }
 
+
+/*
+	check router information
+*/
+int CTestItemScript::RunRouterInfoTest(TEST_ITEM *pTI)
+{      
+    
+    char fullCmd[128],Line[200],result[5200],*cmdPoint=NULL,cmdOut[1024],*cmdEnd=NULL,*outStart=NULL,*outEnd=NULL;
+    FILE *fread=NULL;
+    memset(fullCmd,0,sizeof(fullCmd));
+    memset(Line,0,sizeof(Line));
+    memset(result,0,sizeof(result));
+    memset(cmdOut,0,sizeof(cmdOut));
+    memset(nowDUT.SSID2G,0,sizeof(nowDUT.SSID2G));
+    memset(nowDUT.SSID5G,0,sizeof(nowDUT.SSID5G));
+    memset(nowDUT.PassPhrase2G,0,sizeof(nowDUT.PassPhrase2G));
+    memset(nowDUT.PassPhrase5G,0,sizeof(nowDUT.PassPhrase5G));
+    cmdPoint = pTI->Para.GetHashMapStrPara("DUT_CMD");
+    if(!cmdPoint)
+     {
+        char specStr[20]= "";
+		sprintf(specStr,"No \"DUT_CMD\"");
+		amprintf("Error:%s!\n",specStr);
+        return 3;
+    }
+    sprintf(fullCmd,"%s |tee out.txt",cmdPoint);
+    amprintf("command:%s\n",fullCmd);
+    system(fullCmd);
+    
+    fread = fopen("out.txt","r");
+    if(fgets(Line,200,fread)==NULL)
+	{
+        fclose(fread);
+        char dutStr[50]= "";
+        sprintf(dutStr,"No output of the command");
+        amprintf("Error:%s!\n",dutStr);
+        return 0;
+	}
+	else
+	{
+		strncat(result,Line,strlen(Line));
+	}
+	while(!feof(fread))
+	{
+		memset(Line,0,sizeof(Line));
+		if(fgets(Line,200,fread)==NULL)
+		{
+			break;
+		}
+		else
+		{
+			strncat(result,Line,strlen(Line));
+		}
+	}
+	amprintf("telnet output:%s\n",result);
+    fclose(fread);
+    char *languagePoint = NULL;
+    languagePoint = strstr(result,"routerinfo");
+    if(!languagePoint)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error1:%s!\n",dutStr);
+        return 0;
+    }
+     char *languagePoint1 = NULL;
+    languagePoint += strlen("routerinfo") -1;
+    languagePoint1 = strstr(languagePoint,"routerinfo");
+    if( languagePoint1)
+    {
+        languagePoint = languagePoint1;
+    }
+    languagePoint = strstr(languagePoint,"\n");
+    if(!languagePoint)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error2:%s!\n",dutStr);
+        return 0;
+    }
+    if(strlen(languagePoint) == 1)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error3:%s!\n",dutStr);
+        return 0;
+    }
+    languagePoint++;
+    cmdEnd = strstr(languagePoint,"#");
+    if(!cmdEnd)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error4:%s!\n",dutStr);
+        return 0;
+    }
+    strncpy(cmdOut,languagePoint,cmdEnd - languagePoint);
+    amprintf("command output:%s",cmdOut);
+    outStart = strstr(cmdOut,"SSID - ");
+    if(!outStart)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error5:%s!\n",dutStr);
+        return 0;
+    }  
+    outStart += strlen("SSID - ");
+    outEnd = strstr(outStart,"\n");
+    if(!outEnd)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error6:%s!\n",dutStr);
+        return 0;
+    }  
+    strncpy(nowDUT.SSID2G,outStart,outEnd - outStart);
+    outStart = NULL;
+    outEnd = NULL;
+    outStart = strstr(cmdOut,"SSID_5G - ");
+    if(!outStart)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error7:%s!\n",dutStr);
+        return 0;
+    }  
+    outStart += strlen("SSID_5G - ");
+    outEnd = strstr(outStart,"\n");
+    if(!outEnd)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error8:%s!\n",dutStr);
+        return 0;
+    }  
+    strncpy(nowDUT.SSID5G,outStart,outEnd - outStart);
+    outStart = NULL;
+    outEnd = NULL;
+    outStart = strstr(cmdOut,"Passphrase - ");
+    if(!outStart)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error9:%s!\n",dutStr);
+        return 0;
+    }  
+    outStart += strlen("Passphrase - ");
+    outEnd = strstr(outStart,"\n");
+    if(!outEnd)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error10:%s!\n",dutStr);
+        return 0;
+    }  
+    strncpy(nowDUT.PassPhrase2G,outStart,outEnd - outStart);
+    outStart = NULL;
+    outEnd = NULL;
+    outStart = strstr(cmdOut,"Passphrase_5G - ");
+    if(!outStart)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error11:%s!\n",dutStr);
+        return 0;
+    }  
+    outStart += strlen("Passphrase_5G - ");
+    outEnd = strstr(outStart,"\n");
+    if(!outEnd)
+    {
+        char dutStr[50]= "";
+		sprintf(dutStr,"Can't find routerinfo message in DUT message");
+	    amprintf("Error12:%s!\n",dutStr);
+        return 0;
+    }
+    strncpy(nowDUT.PassPhrase5G,outStart,outEnd - outStart);
+    return 1;
+}
+

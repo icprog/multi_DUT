@@ -77,6 +77,9 @@ public:
 	/*check USB throughput*/
 	int RunUsbThputTest(TEST_ITEM *pTI);
 	
+	/*check router information*/
+	int RunRouterInfoTest(TEST_ITEM *pTI);
+	
 };
 
 #endif
