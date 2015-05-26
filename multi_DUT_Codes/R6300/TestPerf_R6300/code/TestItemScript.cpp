@@ -1538,3 +1538,59 @@ int CTestItemScript::RunWifiButtonTest(TEST_ITEM *pTI)
         return 0;
         
 }
+
+
+/*
+	Set wifi down
+*/
+int CTestItemScript::RunWifiDownTest(TEST_ITEM *pTI)
+{       
+    int returnValue =EnsureResult(pTI,"wlan down OK",DUT_CMD);
+    return returnValue;
+}
+
+/*
+	Do pot stop action
+*/
+int CTestItemScript::RunPotStopTest(TEST_ITEM *pTI)
+{       
+    int returnValue =EnsureResult(pTI,"Stop done.",DUT_CMD);
+    return returnValue;
+}
+
+
+/*
+	Check pot stop successfull or not
+*/
+int CTestItemScript::RunPotTimeTest(TEST_ITEM *pTI)
+{       
+    int returnValue =EnsureResult(pTI,"POT time: 0 day 0 hour 0 min",DUT_CMD);
+    return returnValue;
+}
+
+
+/*
+	Set DUT default
+*/
+int CTestItemScript::RunLodedefaultTest(TEST_ITEM *pTI)
+{       
+    char IDTemp[200],IDAdd[200],*cmdValue=NULL;
+    memset(IDAdd,0,sizeof(IDAdd));
+    memset(IDTemp,0,sizeof(IDTemp));
+    cmdValue = pTI->Para.GetHashMapStrPara(DUT_CMD);
+    if(!cmdValue)
+    {
+        char cmdStr[20]= "";
+		sprintf(cmdStr,"No \"%s\"",DUT_CMD);
+		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",cmdStr);
+	    amprintf("Error:%s!\n",cmdStr); 
+        return 3;
+    }
+    strncpy(IDTemp,cmdValue,strlen(cmdValue));
+    strcpy(IDAdd,"./");
+    strncat(IDAdd,IDTemp,strlen(IDTemp));
+    printf("IDAdd=%s\n",IDAdd);
+    system(IDAdd);
+    return 1;
+    
+}

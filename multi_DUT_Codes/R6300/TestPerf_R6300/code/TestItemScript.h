@@ -90,7 +90,19 @@ public:
 	int RunWpsButtonTest(TEST_ITEM *pTI);
 	
 	/*Check wifi button*/
-	int RunWifiButtonTest(TEST_ITEM *pTI)
+	int RunWifiButtonTest(TEST_ITEM *pTI);
+	
+	/*Set wifi down*/
+	int RunWifiDownTest(TEST_ITEM *pTI);
+	
+	/*Do pot stop action*/
+	int RunPotStopTest(TEST_ITEM *pTI);
+	
+	/*Check pot stop successfull or not*/
+	int RunPotTimeTest(TEST_ITEM *pTI);
+	
+	/*Set DUT default*/
+	int RunLodedefaultTest(TEST_ITEM *pTI);
 	
 };
 
