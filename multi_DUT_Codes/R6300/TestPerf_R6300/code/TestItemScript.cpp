@@ -1461,3 +1461,80 @@ int CTestItemScript::RunRouterInfoTest(TEST_ITEM *pTI)
     return 1;
 }
 
+
+/*
+	Set reset no reboot mode
+*/
+int CTestItemScript::RunResetNoRebootTest(TEST_ITEM *pTI)
+{       
+    wifiButtonRetry = 0;
+    resetButtonRetry = 0;
+    int returnValue =EnsureResult(pTI,"upgrade file OK",DUT_CMD);
+    return returnValue;
+}
+
+/*
+	Check reset button
+*/
+int CTestItemScript::RunResetButtonTest(TEST_ITEM *pTI)
+{       
+     if(resetButtonRetry==0)
+    {
+        resetButtonRetry++;
+        return RunButtonTest(pTI,"reset button is pressed",200000);
+    }
+    else if(resetButtonRetry==1)
+    {
+        resetButtonRetry++;
+        return RunButtonTest(pTI,"reset button is pressed",500000);
+    }
+     else if(resetButtonRetry>=2)
+    {
+        wifiButtonRetry++;
+        return RunButtonTest(pTI,"reset button is pressed",1500000);
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+/*
+	Check WPS button
+*/
+int CTestItemScript::RunWpsButtonTest(TEST_ITEM *pTI)
+{       
+    
+    return RunButtonTest(pTI,"wps button is pressed",1000000);
+}
+
+
+/*
+	Check wifi button
+*/
+int CTestItemScript::RunWifiButtonTest(TEST_ITEM *pTI)
+{       
+     if(wifiButtonRetry==0)
+    {
+        wifiButtonRetry++;
+        return RunButtonTest(pTI,"wifi button is pressed",3000000);
+    }
+    else if(wifiButtonRetry==1)
+    {
+        wifiButtonRetry++;
+        return RunButtonTest(pTI,"wifi button is pressed",5000000);
+    }
+     else if(wifiButtonRetry==2)
+    {
+        wifiButtonRetry++;
+        return RunButtonTest(pTI,"wifi button is pressed",10000000);
+    }
+     else if(wifiButtonRetry>=3)
+    {
+        wifiButtonRetry++;
+        return RunButtonTest(pTI,"wifi button is pressed",15000000);
+    }
+    else
+        return 0;
+        
+}

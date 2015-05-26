@@ -80,6 +80,18 @@ public:
 	/*check router information*/
 	int RunRouterInfoTest(TEST_ITEM *pTI);
 	
+	/*Set reset no reboot mode*/
+	int RunResetNoRebootTest(TEST_ITEM *pTI);
+	
+	/*Check reset button*/
+	int RunResetButtonTest(TEST_ITEM *pTI);
+	
+	/*Check WPS button*/
+	int RunWpsButtonTest(TEST_ITEM *pTI);
+	
+	/*Check wifi button*/
+	int RunWifiButtonTest(TEST_ITEM *pTI)
+	
 };
 
 #endif
