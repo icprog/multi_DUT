@@ -1594,3 +1594,123 @@ int CTestItemScript::RunLodedefaultTest(TEST_ITEM *pTI)
     return 1;
     
 }
+
+/*
+	Set  led down and test with button
+*/
+int CTestItemScript::RunSetLedTest(TEST_ITEM *pTI)
+{       
+    int returnValue = EnsureMutiConfigResult(pTI,DUT_CMD,"SPEC");
+    
+    return returnValue;
+    
+}
+
+/*
+	Set wlan led  and test with button
+*/
+int CTestItemScript::RunSetWanLedTest(TEST_ITEM *pTI)
+{       
+    
+    int returnValue = EnsureConfigResult(pTI,DUT_CMD,"SPEC",NO_LOG_TO_MYDAS);
+    if(returnValue != 1)
+    {
+        return returnValue;
+    }
+    else 
+    {
+        returnValue=EnsureConfigResult(pTI,"DUT_CMD1","SPEC1",NO_LOG_TO_MYDAS);
+        if(returnValue != 1)
+        {
+            return returnValue;
+        }
+        else
+        {
+            returnValue = EnsureConfigResult(pTI,"DUT_CMD2","SPEC2",NO_LOG_TO_MYDAS);
+            
+            return returnValue;
+
+        }
+    }
+}
+
+/*
+	check Lan wan throughput test
+*/
+int CTestItemScript::RunLanThroughputTest(TEST_ITEM *pTI)
+{
+    char result[1024],*rate=NULL,*rateEnd=NULL;
+    char SpecValue[100],*spec;
+    char log[1024];
+    memset(log,0,sizeof(log));
+    memset(SpecValue,0,sizeof(SpecValue));
+    memset(result,0,1024);
+    int returnValue = RunExeFile(pTI,result,DUT_CMD);
+    if(returnValue==1)
+    {
+        rateEnd = strstr(result,"Mbits/sec");
+        if(!rateEnd)
+        {
+            rateEnd = strstr(result,"Kbits/sec/s");
+            if(!rateEnd)
+            {
+                rateEnd = strstr(result,"MBytes/sec");
+                if(!rateEnd)
+                {
+                        rateEnd = strstr(result,"KBytes/sec");
+                        if(!rateEnd)
+                        {
+                            if(strstr(result,"\n"))
+                        	{
+                            	strncpy(log,result,strstr(result,"\n")-result);
+                            	pTI->Para.ModifyHashMapItem("ERR_DES_ADD",log);
+                            }
+                            else
+                            {
+                               pTI->Para.ModifyHashMapItem("ERR_DES_ADD",result);
+                            }
+	                        amprintf("Error message:%s",result);
+                            return 2;
+                        }
+                }
+            }
+        }
+		
+        while(!isdigit(*rateEnd))
+        {
+            rateEnd--;
+        }
+        *(++rateEnd)='\0';
+        rate = rateEnd;
+        while(!isblank(*rate))
+        {
+            rate--;
+        }
+        ++rate;
+        spec = pTI->Para.GetHashMapStrPara("SPEC");
+        if(!spec)
+        {
+            char specStr[20]= "";
+    		sprintf(specStr,"No \"SPEC\"");
+    		pTI->Para.ModifyHashMapItem("ERR_DES_ADD",specStr);
+    	    amprintf("Error:%s!\n",specStr);
+            return 3;
+        }
+        
+        strncpy(SpecValue,spec,strlen(spec));
+        amprintf("Throughput in Config=%s\n",SpecValue);
+        amprintf("Throughput in fact=%d\n",atoi(rate));
+        memset(pTI->Result.Result,0,sizeof(pTI->Result.Result));
+        strcpy(pTI->Result.Result,rate);
+        memset(pTI->Result.ResultAim,0,sizeof(pTI->Result.ResultAim));
+        strcpy(pTI->Result.ResultAim,SpecValue);
+        if(atoi(rate)<atoi(SpecValue))
+            return 0;
+        else
+            return 1;
+    }
+    else if(returnValue==3)
+        return 3;
+    else
+        return 2;
+}

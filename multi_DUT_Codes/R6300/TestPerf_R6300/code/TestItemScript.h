@@ -104,6 +104,15 @@ public:
 	/*Set DUT default*/
 	int RunLodedefaultTest(TEST_ITEM *pTI);
 	
+	/*Set  led down and test with button*/
+	int RunSetLedTest(TEST_ITEM *pTI);
+	
+	/*Set wlan led  and test with button*/
+	int RunSetWanLedTest(TEST_ITEM *pTI);
+	
+	/*check Lan wan throughput test*/
+	int RunLanThroughputTest(TEST_ITEM *pTI);
+	
 };
 
 #endif
