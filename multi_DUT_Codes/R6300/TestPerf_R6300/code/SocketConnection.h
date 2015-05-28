@@ -51,4 +51,7 @@ public:
 
 };
 
+/*main thread*/
+void MainConnectionThread(void* lpParameter);
+
 #endif

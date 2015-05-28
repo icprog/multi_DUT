@@ -9,6 +9,111 @@ extern int TestEnd;
 extern bool gThreadExitFlag;
 extern pthread_t TestThreadID;
 
+void MainConnectionThread(void* lpParameter)
+{
+	DOT_SOC_BUF RevBuf;
+	psd=(CSocketConnection *)lpParameter;
+	while(1)
+	{
+		psd->SocketSer.listen();
+		if(!(psd->SocketSer.accept(psd->revSocket))) {
+			printf("Can't connect!\n");
+		}
+     //SendIDInfoToUI();
+     ConnectionIf=1;
+		int byte_offset=0;
+
+		while(1) {
+
+			if (byte_offset<3004)
+			{
+
+				int byterev=0;
+				char temp[5120]="";
+				byterev=psd->recive_from(temp,5120);
+				if(byterev < 0)
+				{
+					if(byterev==-1)
+					{
+						if(!gThreadExitFlag)
+						{
+							printf("Connection lose!\n");
+							//psd->ensureSymbol=-1;
+							psd->revSocket.close();
+							gThreadExitFlag=true;
+							if(TestThreadID)
+							{
+								if(TestThreadID)
+								    pthread_cancel(TestThreadID);
+							}
+							break;
+						}
+					}
+					else
+					{
+							printf("Connection lose!\n");
+							//psd->ensureSymbol=-1;
+							psd->revSocket.close();
+							gThreadExitFlag=true;
+							if(TestThreadID)
+							{
+								if(TestThreadID)
+								    pthread_cancel(TestThreadID);
+							}
+							break;	
+					}
+				}
+				else if (byterev==0) 
+				{
+					if(!gThreadExitFlag)
+					{
+					printf("Connection lose!\n");
+					psd->revSocket.close();
+					gThreadExitFlag=true;
+					}
+					else
+					{
+					printf("Test End! Connnection Lose!\n");
+					psd->revSocket.close();
+					}
+					
+					if(TestThreadID)
+					{
+					    if(TestThreadID)
+					        pthread_cancel(TestThreadID);
+					}
+					break;
+				}
+				else if(byterev<5)
+				{
+					psd->ensureSymbol=1;
+					printf("Ensure message\n");
+
+				} else
+				{
+
+					//printf("CURRENT LEN:%d\n",byte_offset);
+					memcpy((char*)RevBuf.Data,temp,byterev);
+					RevBuf.Len=strlen(temp);
+					byte_offset+=byterev;
+					psd->InsertRevList(&RevBuf);
+					memset((void*)&RevBuf,0,sizeof(RevBuf));
+				}
+				byte_offset=0;
+
+				//printf("Step 3\n");
+			}
+
+
+
+		}
+
+	}
+	return;
+
+}
+
+
 /*
 	structor function
 */
