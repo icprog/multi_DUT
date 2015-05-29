@@ -13,5 +13,20 @@ int InitialTestWork();
 
 /*After the test */
 int AfterTestWork();
+
+/*mian test thread*/
+void MainTestThread(void *lpParameter);
+
+/*after the mian test thread*/
+void StopMainTest();
+
+/*Item Test Task*/
+int  ItemTestTask(TEST_ITEM *pTI);
+
+/*get sunlight setting for LED test.*/
+int GetSunLight();
+
+/*Test sunlight for LED test.*/
+int SunlightCheck();
 #endif
 
