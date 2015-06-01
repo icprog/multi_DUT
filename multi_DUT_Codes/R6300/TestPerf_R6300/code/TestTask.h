@@ -2,6 +2,15 @@
 #ifndef TETS_TASK_H
 #define TETS_TASK_H
 
+#include <list>
+#include "AmbtTestSysDef.h"
+#include "TestItemScript.h"
+#include "AmParser.h"
+#include "AmCommonIO.h"
+#include "AmbtParser.h"
+#include "CenTime.h"
+#include "Cylinder.h"
+
 /*Compare the max length.*/
 int strMaxLenCmp(const char *p1, const char *p2);
 
