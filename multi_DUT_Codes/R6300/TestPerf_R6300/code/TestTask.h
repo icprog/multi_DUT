@@ -37,5 +37,8 @@ int GetSunLight();
 
 /*Test sunlight for LED test.*/
 int SunlightCheck();
+
+/*send test inforamtion to UI Program.*/
+int SendIDInfoToUI(void);
 #endif
 

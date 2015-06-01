@@ -2,7 +2,7 @@
 	do the act test in process function definition and script description
  */
 #include "TestTask.h"
-
+#include "VersionAndLog.h"
 
 /*
 	Compare the max length.
@@ -185,8 +185,6 @@ int  ItemTestTask(TEST_ITEM *pTI)
     return 1;
 }
 
-
-
 /*
 	get sunlight setting for LED test.
 */
@@ -337,6 +335,21 @@ int SunlightCheck()
     } 
     GetSunLight();
     return 1;  
+}
+
+/*
+	send test inforamtion to UI Program.
+*/
+int SendIDInfoToUI(void)
+{
+    strcpy(gTI.TestStaInfo.TestProgramVersion,SOFTWARE_VERSION);
+    amprintf("CONTROL=TSNAME[%s]TSMODEL[%s]TSVER[%s]LOGPATH[%s];", 
+        gTI.TestStaInfo.TestStaName,gTI.DUTInfo.DUTName,gTI.TestStaInfo.TestProgramVersion,gTI.TestStaInfo.TestLogPath
+        ); //Add send DUT model to UI for database use
+    GetSunLight();
+    
+
+    return 1;
 }
 
 
