@@ -371,5 +371,133 @@ int SendIDInfoToUI(void)
     return 1;
 }
 
+/*
+	perf test
+*/
+int PerfTest(list<TEST_ITEM>::iterator *pCy)
+{
+    ItemTestID = 1;
+    int  iItemCount=0;
+    char *pFlag=NULL;
+    int flag=1;
+    gThreadExitFlag=0;
+    char TimeBuf[50];
+
+    CCenTime Time;
+    CCenTime TotalTime;
+
+    list<TEST_ITEM>::iterator Cy;
+    list<TEST_ITEM>::iterator JumpCy;
+
+    for (Cy=TItemList.begin(); Cy!=TItemList.end();Cy++)
+    {
+        Cy->Result.ResultFlag=NO_TEST;
+        memset(Cy->Result.Result,0,sizeof(Cy->Result.Result));
+        memset(Cy->Result.ResultAim,0,sizeof(Cy->Result.ResultAim));
+        strncpy(Cy->Result.Result,"-999999",sizeof(Cy->Result.Result));
+        strncpy(Cy->Result.ResultAim,"-999999",sizeof(Cy->Result.ResultAim));
+        Cy->RetryItemCount=0;//reset retry item counter
+        if (TFLAG_SKIP!=Cy->Para.GetHashMapIntPara(ITEM_ENABLE_FALG))//judge the test flag
+        {
+            iItemCount++;
+        }
+    }
+    sleep(1);
+    amprintf("ITEM=NUMBER[%d];\n",iItemCount);
+    Time.GetDate(gTI.DUTInfo.TestDate,sizeof(gTI.DUTInfo.TestDate));
+    Time.GenCurrentTime(gTI.DUTInfo.TestTime, sizeof(gTI.DUTInfo.TestTime));
+    TotalTime.TimeStartCount();
+    for (Cy=TItemList.begin(); Cy!=TItemList.end();Cy++)
+    {
+        char *testItem = NULL;
+        testItem = Cy->Para.GetHashMapStrPara(ITEM_ID);
+        if(!strcmp(testItem,"CHECK_DUT_BOARDID"))
+        {
+            CTestItemScript bootupScript;
+            int bootupFlag=0;
+            int alarmSecond = 90;
+            int secondCost = 0;
+            Time.TimeStartCount();//count the time
+            while((bootupFlag!=1)&&(secondCost<alarmSecond))
+            {
+                bootupFlag = bootupScript.RunBoardIdTest(&(*Cy));
+                Time.GetElapseSecond(&secondCost);
+            }
+            if(bootupFlag == 6)
+            {
+                system("./telnetenable 192.168.1.1");
+                system("(sleep 1&&echo \"nvram set parser_enable=1\"&&sleep 1&&echo \"nvram set telnetd_enable=1\"&&sleep 1&&echo \"nvram set wan_proto=static\"&&sleep 1&&echo \"nvram set wan_ipaddr_old=111.111.111.111\"&&sleep 1&&echo \"nvram set wan_ipaddr=111.111.111.111\"&&sleep 1&&echo \"nvram set wan_netmask=255.255.255.0\"&&sleep 1&&echo \"nvram set wan_gateway=111.111.111.222\"&&sleep 1&&echo \"nvram set wan_dns1=111.111.111.222\"&&sleep 1&&echo \"nvram set wan_dns_sel=1\"&&sleep 1&&echo \"nvram save\"&&sleep 1&&echo \"reboot\"&&sleep 1&&echo \"exit\") |telnet 192.168.1.1");
+                secondCost = 0;
+                Time.TimeStartCount();//count the time
+                 while((bootupFlag!=1)&&(secondCost<alarmSecond))
+                {
+                    bootupFlag = bootupScript.RunBoardIdTest(&(*Cy));
+                    Time.GetElapseSecond(&secondCost);
+                }
+            }
+            if(bootupFlag == 5)
+            {
+                Cy->Result.ResultFlag=5;
+                TestPassFail=1;  
+                goto LB_EXIT;
+            } 
+        }
+    }
+    InitialTestWork();
+    for (Cy=TItemList.begin(); Cy!=TItemList.end();Cy++)
+    {
+        
+        pFlag = Cy->Para.GetHashMapStrPara(ITEM_ENABLE_FALG);
+        if(!pFlag)
+            flag = 1;
+        else
+            flag = atoi(pFlag);
+        if (TFLAG_SKIP==flag)//judge the test flag
+        {
+            continue;
+        }
+        if (TFLAG_INI_RUN==flag)//judge the test flag
+        {
+            continue;
+        }
+        if (TFLAG_END_RUN==flag)//judge the test flag
+        {
+            continue;
+        }
+        if (TFLAG_TERMINATE_RUN==flag)//judge the test flag
+        {
+            continue;
+        }
+
+        ItemTestTask(&(*Cy));
+        if(Cy->Result.ResultFlag!=TEST_PASS)
+        {
+            switch (flag)
+            {
+                case TFLAG_FAIL_STOP:
+                *pCy=Cy;//RETURN THE current test item index
+                goto LB_EXIT;
+                break;
+                case TFLAG_FAIL_CONTINUE:continue;break;
+                //case TFLAG_FAIL_PAUSE:;break;
+                case TFLAG_FAIL_PAUSE:break;/*FreezeFlag=1*/;break;
+                default:;break;
+
+            }
+        }
+
+    }
+    *pCy=TItemList.end();//RETURN THE current test item index
+    LB_EXIT:
+
+    EndTestWork();
+
+    TotalTime.GetElapseTime(TimeBuf,sizeof(TimeBuf));
+    strncpy(gTI.DUTInfo.TestTimeCost,TimeBuf,sizeof(gTI.DUTInfo.TestTimeCost));
+    amprintf("Total test time:%s;\n",TimeBuf);
+    
+    return 1;
+}
+
 
 

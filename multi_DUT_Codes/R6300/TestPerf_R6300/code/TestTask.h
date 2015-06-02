@@ -43,5 +43,8 @@ int SunlightCheck();
 
 /*send test inforamtion to UI Program.*/
 int SendIDInfoToUI(void);
+
+/*perf test*/
+int PerfTest(list<TEST_ITEM>::iterator *pCy);
 #endif
 
