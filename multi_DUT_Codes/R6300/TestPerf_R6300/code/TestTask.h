@@ -23,6 +23,9 @@ int InitialTestWork();
 /*After the test */
 int AfterTestWork();
 
+/*End the test work*/
+int EndTestWork();
+
 /*mian test thread*/
 void MainTestThread(void *lpParameter);
 

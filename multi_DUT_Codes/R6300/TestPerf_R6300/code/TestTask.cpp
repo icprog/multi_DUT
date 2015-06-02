@@ -73,6 +73,25 @@ int AfterTestWork()
 }
 
 /*
+	End the test work
+*/
+int EndTestWork()
+{
+
+    list<TEST_ITEM>::iterator Cy;
+    for (Cy=TItemList.begin(); Cy!=TItemList.end();Cy++)
+    {               
+        if (TFLAG_END_RUN!=Cy->Para.GetHashMapIntPara(ITEM_ENABLE_FALG))//judge the test flag
+        {
+            continue;
+        }
+
+        ItemTestTask(&(*Cy));
+    }
+    return 1;
+}
+
+/*
 	mian test thread
 */
 void MainTestThread(void *lpParameter)
