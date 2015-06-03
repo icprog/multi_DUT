@@ -499,5 +499,198 @@ int PerfTest(list<TEST_ITEM>::iterator *pCy)
     return 1;
 }
 
+/*
+	Report test result to UI program.
+*/
+int ReportTestResult(list<TEST_ITEM>::iterator StopCy)
+{
+
+    char ErrorCode[512]="",*errCode=NULL;
+    char ErrorCodeAdd[512]="";
+    char SFISToUI[512]="";
+    char SFISTemp[512]="";
+    int ErrorCodeCount = 0,num=1;
+    char logbuf[5046]="";
+    char errlog[1024]="";
+    
+    map<char*,char*>::iterator iter;
+    for(iter=SFISDataHashMap.pParaHashMap->begin();iter!=SFISDataHashMap.pParaHashMap->end();iter++)
+    {
+        sprintf(SFISTemp,"%s[%s]",iter->first,iter->second);
+        strncat(SFISToUI,SFISTemp,strlen(SFISTemp));
+    }
+    memset(logbuf,0,sizeof(logbuf));
+    memset(errlog,0,sizeof(errlog));
+    for (StopCy=TItemList.begin(); StopCy!=TItemList.end();StopCy++,num++)
+    {       
+            
+        if (TEST_FAIL==(StopCy->Result.ResultFlag))
+        {
+
+            if(ErrorCodeCount>0)
+            {
+             strcat(ErrorCode,",");
+             
+            }
+            
+            errCode = StopCy->Para.GetHashMapStrPara(ITEM_ERR_CODE);
+            if(!errCode)
+            {
+                sprintf(ErrorCodeAdd,"CE%02d",StopCy->Num);
+                strncat(ErrorCode,ErrorCodeAdd,strlen(ErrorCodeAdd));
+                strcat(errlog,ErrorCodeAdd);
+                strcat(errlog,",");
+                strcat(errlog,"No \"ERR_CODE\"");
+                strcat(errlog,",");
+                if(strcmp(StopCy->Result.Result,"-999999"))
+                {
+                    strcat(errlog,StopCy->Result.Result);
+                }
+                strcat(errlog,"|");
+                      
+            }
+            else
+            {
+                strncat(ErrorCode,errCode,strlen(errCode));
+                strcat(errlog, errCode);
+                strcat(errlog,",");
+                char *errDes = NULL;
+                errDes = StopCy->Para.GetHashMapStrPara(ITEM_ERR_CODE_DES);
+                if(errDes)
+                {
+                    strcat(errlog,errDes);
+                }
+                else
+                {
+                    strcat(errlog,"No error code descaription");
+                }
+                strcat(errlog,",");
+                if(strcmp(StopCy->Result.Result,"-999999"))
+                {
+                    strcat(errlog,StopCy->Result.Result);
+                }
+                strcat(errlog,"|");
+            }  
+          ErrorCodeCount++;
+            
+        }
+        else if(TEST_COMMAD_ERROR==(StopCy->Result.ResultFlag))
+        {
+            if(ErrorCodeCount>0)
+            {
+             strcat(ErrorCode,",");
+            }
+            sprintf(ErrorCodeAdd,"CM%02d",StopCy->Num); 
+            strncat(ErrorCode,ErrorCodeAdd,strlen(ErrorCodeAdd));
+            strcat(errlog,ErrorCodeAdd);
+            char *errDes = NULL;
+            strcat(errlog,",");
+            errDes = StopCy->Para.GetHashMapStrPara("ERR_DES_ADD");
+             if(errDes)
+            {
+                strcat(errlog,errDes);
+            }
+            else
+            {
+                strcat(errlog,"No error code descaription");
+            }
+            strcat(errlog,",");
+            strcat(errlog,"|");
+            ErrorCodeCount++;
+        }
+       
+        else if(TEST_CONFIG_ERROR==(StopCy->Result.ResultFlag))
+        {
+            if(ErrorCodeCount>0)
+            {
+                strcat(ErrorCode,",");
+            }
+            sprintf(ErrorCodeAdd,"CE%02d",StopCy->Num); 
+            strncat(ErrorCode,ErrorCodeAdd,strlen(ErrorCodeAdd));   
+            strcat(errlog,ErrorCodeAdd);
+            char *errDes = NULL;
+            strcat(errlog,",");
+            errDes = StopCy->Para.GetHashMapStrPara("ERR_DES_ADD");
+             if(errDes)
+            {
+                strcat(errlog,errDes);
+            }
+            else
+            {
+                strcat(errlog,"No error code description");
+            }
+            strcat(errlog,",");
+            strcat(errlog,"|");
+            ErrorCodeCount++; 
+        }
+        else if(NO_CONNECT==(StopCy->Result.ResultFlag))
+        {
+            if(ErrorCodeCount>0)
+            {
+                strcat(ErrorCode,",");
+            }
+            sprintf(ErrorCodeAdd,"NDUT"); 
+            strncat(ErrorCode,ErrorCodeAdd,strlen(ErrorCodeAdd));   
+            strcat(errlog,ErrorCodeAdd);
+            strcat(errlog,",");
+            
+            strcat(errlog,"Not find DUT");
+            strcat(errlog,",");
+            strcat(errlog,"|");
+            ErrorCodeCount++; 
+        }
+        else if(NO_PARSER==(StopCy->Result.ResultFlag))
+        {
+            if(ErrorCodeCount>0)
+            {
+                strcat(ErrorCode,",");
+            }
+            sprintf(ErrorCodeAdd,"NPAR"); 
+            strncat(ErrorCode,ErrorCodeAdd,strlen(ErrorCodeAdd));   
+            strcat(errlog,ErrorCodeAdd);
+            strcat(errlog,",");
+            
+            strcat(errlog,"No Parser in DUT");
+            strcat(errlog,",");
+            strcat(errlog,"|");
+            ErrorCodeCount++; 
+        }
+        if(strcmp(StopCy->Result.Result,"-999999"))
+        {
+            strcat(logbuf,StopCy->Result.ResultAim);
+            strcat(logbuf,",");
+            strcat(logbuf,StopCy->Result.Result);
+            strcat(logbuf,",");
+        }
+   
+    }
+    
+    strcpy(gTI.TestStaInfo.TesterPCName,"ARM");
+    if (TestPassFail)
+    {
+        amprintf("LOG=MAINFOR[%s,0,%s,%s,%s,%s,%s,%s,%s];\n",SFISDataHashMap.GetHashMapStrPara("SN"),gTI.TestStaInfo.TestLogPath,gTI.TestStaInfo.TestProgramVersion,gTI.TestStaInfo.TesterPCName,gTI.DUTInfo.TestTimeCost,gTI.DUTInfo.TestTime,SFISDataHashMap.GetHashMapStrPara("ETHERNETMAC"),SFISDataHashMap.GetHashMapStrPara("PIN"));
+    }
+    else
+    {
+        
+        amprintf("LOG=MAINFOR[%s,1,%s,%s,%s,%s,%s,%s,%s];\n",SFISDataHashMap.GetHashMapStrPara("SN"),gTI.TestStaInfo.TestLogPath,gTI.TestStaInfo.TestProgramVersion,gTI.TestStaInfo.TesterPCName,gTI.DUTInfo.TestTimeCost,gTI.DUTInfo.TestTime,SFISDataHashMap.GetHashMapStrPara("ETHERNETMAC"),SFISDataHashMap.GetHashMapStrPara("PIN"));
+    }   
+    amprintf("LOG=CONTENT[%s,%s,%s,%s,%s,%s];\n",SFISDataHashMap.GetHashMapStrPara("SN"),SFISDataHashMap.GetHashMapStrPara("SSID_2G"),SFISDataHashMap.GetHashMapStrPara("Password_2G"),SFISDataHashMap.GetHashMapStrPara("SSID_5G"),SFISDataHashMap.GetHashMapStrPara("Password_5G"),logbuf);
+     if (TestPassFail)
+    {
+        
+        amprintf("LOG=ERROR[%s];\n",errlog);
+        amprintf("SFIS=%sERRORCODE[%s]RESULT[FAIL];CONTROL=RESULT[FAIL];",SFISToUI,ErrorCode);
+        PrintPassFail(0); 
+    }
+    else
+    {
+        amprintf("LOG=ERROR[ ];\n");
+        amprintf("SFIS=%sRESULT[PASS];CONTROL=RESULT[PASS];",SFISToUI); 
+        PrintPassFail(1);
+    }   
+    return 1;
+}
+
 
 

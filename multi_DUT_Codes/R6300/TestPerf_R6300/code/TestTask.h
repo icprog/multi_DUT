@@ -46,5 +46,8 @@ int SendIDInfoToUI(void);
 
 /*perf test*/
 int PerfTest(list<TEST_ITEM>::iterator *pCy);
+
+/*Report test result to UI program.*/
+int ReportTestResult(list<TEST_ITEM>::iterator StopCy);
 #endif
 
