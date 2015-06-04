@@ -692,5 +692,226 @@ int ReportTestResult(list<TEST_ITEM>::iterator StopCy)
     return 1;
 }
 
+/*
+	recevie the test result from UI program.
+*/
+int AcceptCMD(char *pCmd,int DataLen)
+{
+    printf("CMD:%s\n",pCmd);
+    CAmParser cParser;
+    cParser.SetStartStopTag("[","]");
+
+    char DDBuf[3000]="";
+    char cCmdBuf[300]="";
+    char *pTok=NULL;
+    char *pToken=NULL;
+    char *pTokFlag=NULL;
+
+    if (!pCmd)
+    {
+        return 0;
+    }
+    if ((!DataLen)||(DataLen>(int)(sizeof(DDBuf))))
+    {
+        return 0;
+    }
+
+    memcpy(DDBuf,pCmd,DataLen);
+
+    
+    pToken = DDBuf;
+    while(strstr(pToken,";"))
+    {
+        if ((pTok=strstr(pToken, "CONTROL=")))
+        {       
+            if (!cParser.ParserGetPara(pTok, "CMD", cCmdBuf, sizeof(cCmdBuf)))
+            {
+                 if (!cParser.ParserGetPara(pTok, "LED", cCmdBuf, sizeof(cCmdBuf)))
+                {
+                     amprintf("Illogical Command Input:%s!\n",pTok);
+                     break;
+                }
+                else
+                {
+                    LEDCheck ledCheck;
+                    char strLEDBuf[100]="";
+                    char sendRGBBuf[100]="";
+                    int channel = atoi(cCmdBuf);
+                    if(channel==0)
+                    {
+                        amprintf("LEDRGB=Send a channel number fail!;");
+                    }
+                    else if(ledCheck.getFrequency(strLEDBuf,channel)==0)
+                    {
+                        amprintf("LEDRGB=Sensor Board is not connected!;");
+                    }
+                    else if(strstr(strLEDBuf,"fail"))
+                    {
+                        amprintf("LEDRGB=Get RGB  value fail!;");
+                    }
+                    else
+                    {
+                        char *led = strstr(strLEDBuf,"B:");
+                        if(led)
+                        {
+                            strncpy(sendRGBBuf,strLEDBuf,led - strLEDBuf);
+                            sprintf(sendRGBBuf,"%s\r\n%s",sendRGBBuf,led);
+                            amprintf("LEDRGB=%s;",sendRGBBuf);
+                        }
+                        else
+                            amprintf("LEDRGB=%s;",strLEDBuf);
+                    }
+                }
+                
+            }   
+            else
+            {
+            if(!strncmp("EXIT", cCmdBuf, strlen("EXIT")))
+            {
+                return 1;
+            }
+            else if(!strncmp("STOP", cCmdBuf, strlen("STOP")))
+            {
+                StopMainTest();
+                return 1;
+            }
+             else if(!strncmp("REBOOT", cCmdBuf, strlen("REBOOT")))
+            {
+                system("reboot");
+            }
+            else if(!strncmp("START", cCmdBuf, strlen("START")))
+            {
+                amprintf("CONTROL=ECHOCMD[START];\n");
+                if(gThreadExitFlag)
+                {
+                    printf("Start Run Test\n");
+                    TestEnd=0;
+                    buttonTest=0;
+                    buttonBegin=0;
+                    TestPassFail=0;
+                   
+                    
+                    RunTest();
+                }                   
+                else
+                {
+                    amprintf("Error:There are another test running!\n");
+                }
+            }
+            else if(!strncmp("SUNLIGHT", cCmdBuf, strlen("SUNLIGHT")))
+            {
+                if(SunlightCheck())
+                    amprintf("CONTROL=SUNLIGHT[1];\n");
+                else
+                    amprintf("CONTROL=SUNLIGHT[0];\n");
+            }
+             else if(!strncmp("END", cCmdBuf, strlen("END")))
+            {
+                cylin = 1;
+            }
+             else if(!strncmp("RESETPRESS", cCmdBuf, strlen("RESETPRESS")))
+            {
+                 cylinder.doAction("RELAY_CTL_ON:2;");
+            }
+             else if(!strncmp("RESETRELEASE", cCmdBuf, strlen("RESETRELEASE")))
+            {
+                cylinder.doAction("RELAY_CTL_OFF:2;");
+            }
+             else if(!strncmp("WIFIPRESS", cCmdBuf, strlen("WIFIPRESS")))
+            {
+                cylinder.doAction("RELAY_CTL_ON:3;");
+            }
+             else if(!strncmp("WIFIRELEASE", cCmdBuf, strlen("WIFIRELEASE")))
+            {
+                cylinder.doAction("RELAY_CTL_OFF:3;");
+            }
+             else if(!strncmp("WPSPRESS", cCmdBuf, strlen("WPSRELEASE")))
+            {
+                 cylinder.doAction("RELAY_CTL_ON:4;");
+            }
+             else if(!strncmp("WPSRELEASE", cCmdBuf, strlen("WPSRELEASE")))
+            {
+                cylinder.doAction("RELAY_CTL_OFF:4;");
+            }
+                 else if(!strncmp("PORTIN", cCmdBuf, strlen("PORTIN")))
+                {
+                     cylinder.doAction("RELAY_CTL_ON:5;");
+                }
+                 else if(!strncmp("PORTOUT", cCmdBuf, strlen("PORTOUT")))
+                {
+                    cylinder.doAction("RELAY_CTL_OFF:5;");
+                }
+            }
+        }
+
+        else if ((pTok=strstr(pToken, "SFIS")))
+        {
+                char TempBuf[512] ="";
+                memset(TempBuf,0,512);
+                
+                SFIS_ITEM SfisItemTemp;
+                pTokFlag = strstr(pToken, "[");
+                if (!pTokFlag)
+                {
+                    amprintf("SFIS Data is empty;\n");
+                    return 1;
+                }
+                pTok += strlen("SFIS=");
+                memset(SfisItemTemp.Item,0,sizeof(SfisItemTemp.Item));
+                strncpy(SfisItemTemp.Item,pTok,(int)(pTokFlag-pTok));
+                printf("SFIS Item=%s\n",SfisItemTemp.Item);
+                
+                if (cParser.ParserGetPara(pTok, SfisItemTemp.Item, TempBuf, sizeof(TempBuf)))
+                {
+                    strcpy(SfisItemTemp.Data, TempBuf);
+                    printf("SFIS Val=%s\n",SfisItemTemp.Data);
+                }
+                while(!gThreadExitFlag)
+                    sleep(1);
+                SFISDataHashMap.CreateHashMapPara();
+                SFISDataHashMap.InsertHashMapPara(SfisItemTemp.Item,SfisItemTemp.Data);
+                
+                pTok = strstr(pTok,"]");
+                pTok+=1;
+                while(*pTok!=';')
+                {
+                    pTokFlag = strstr(pTok, "[");
+                    memset(SfisItemTemp.Item,0,sizeof(SfisItemTemp.Item));
+                    memset(SfisItemTemp.Data,0,sizeof(SfisItemTemp.Data));
+                    strncpy(SfisItemTemp.Item,pTok,pTokFlag-pTok);
+                                       
+                    if (cParser.ParserGetPara(pTok, SfisItemTemp.Item, TempBuf, sizeof(TempBuf)))
+                    {
+                        strcpy(SfisItemTemp.Data,TempBuf);
+                    }
+                   
+                    SFISDataHashMap.InsertHashMapPara(SfisItemTemp.Item,SfisItemTemp.Data);
+                    pTok = strstr(pTok,"]");
+                    pTok+=1;
+                }
+                
+                if(gThreadExitFlag)
+                {
+                    printf("Start Run Test by SFIS message\n");
+                    TestEnd=0;
+                    buttonTest=0;
+                    buttonBegin=0;
+                    TestPassFail=0; 
+                   
+                    RunTest();
+                    
+                }           
+            
+        }
+        else
+        {
+            printf("The other data.\n");
+        } 
+        pToken=strstr(pToken,";");
+        pToken+=1;
+    } 
+    return 1;
+}
+
 
 

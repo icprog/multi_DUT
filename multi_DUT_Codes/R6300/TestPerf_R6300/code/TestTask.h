@@ -49,5 +49,9 @@ int PerfTest(list<TEST_ITEM>::iterator *pCy);
 
 /*Report test result to UI program.*/
 int ReportTestResult(list<TEST_ITEM>::iterator StopCy);
+
+/*recevie the test result from UI program.*/
+int AcceptCMD(char *pCmd,int DataLen)
+
 #endif
 
