@@ -28,5 +28,10 @@ public:
 	pthread_t dwAutoFixThreadID; 
 };
 
-};
+/*Parse Process*/
+void ParsePktProcess(void* lpPara);
+
+/*Cylinder Start Test*/
+void CylinderStartTest();
+
 #endif

@@ -93,3 +93,89 @@ int CControlLogic::UIConnection()
 	else
 	return 0;
 }
+
+
+/*
+	Parse Process
+*/
+void ParsePktProcess(void* lpPara)
+{
+	char RevBuf[3000];
+	CControlLogic *pCL=(CControlLogic*)lpPara;
+	while (1)
+	{
+		
+		if(ConnectionIf==1)
+		{
+			pCL->InformationCross();
+			ConnectionIf=0;
+		}
+		memset(RevBuf, '\0', sizeof(RevBuf));
+		int ret = 0;
+		ret=SocketConnection.GetRevList(RevBuf,sizeof(RevBuf));
+		if(ret!=0)
+		{
+			
+			if(pCL->ParseCommand(RevBuf,strlen(RevBuf)))
+			continue;
+
+		}
+		usleep(1);
+	}
+	return ;
+}
+
+/*
+	Cylinder Start Test
+*/
+void CylinderStartTest()
+{
+    int status = 0,status1=0;
+    int duration=0;
+    struct timeval tvStart,tvEnd;
+    int auto_status=0;
+    init_io_port();
+    while(1)
+    {
+       status = getBtn1Status();
+       
+       usleep(30000);
+       status1 = getBtn1Status();
+      
+       if((!status1)&&(!status)&&gThreadExitFlag)
+        {
+            int i=0;
+            while(!getBtn1Status()&&( i < 100000))
+            {
+            	i++;
+            	usleep(100);
+            }
+            if(i==100000)
+                continue;
+            if(cylinder.doAction("RELAY_CTL_GET:14;") == 1)
+            	cylinder.doAction("RELAY_CTL_OFF:1;");
+            else
+            {
+            	auto_status = 0;
+	            cylinder.doAction("RELAY_CTL_ON:1;");
+	            printf("Cylinder start!\n");
+	            gettimeofday(&tvStart,NULL);
+	            duration=0;
+	            while((auto_status != 1)&&(duration<2))
+	            {
+	                auto_status = cylinder.doAction("RELAY_CTL_GET:14;");
+	                gettimeofday(&tvEnd,NULL);
+	                duration=tvEnd.tv_sec-tvStart.tv_sec;
+	            }
+	            if(duration >= 2)
+	                cylinder.doAction("RELAY_CTL_OFF:1;");
+	            else
+	           {
+	                amprintf("FIX=FIXNUM[1];\n"); 
+	            }
+	        }  
+        }
+        
+    }
+    return;
+}
