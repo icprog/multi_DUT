@@ -913,5 +913,18 @@ int AcceptCMD(char *pCmd,int DataLen)
     return 1;
 }
 
+/*
+	run test.
+*/
+int RunTest()
+{   
+    PrepareTestWork();
+    int createIf = pthread_create(&TestThreadID,NULL,(void* (*) (void*))MainTestThread,NULL);
+    if(createIf)
+        printf("Create Thread fail!\n");
+    pthread_detach(TestThreadID);
+    return 1;
+}
+
 
 

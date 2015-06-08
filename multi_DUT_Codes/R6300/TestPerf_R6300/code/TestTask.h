@@ -10,6 +10,7 @@
 #include "AmbtParser.h"
 #include "CenTime.h"
 #include "Cylinder.h"
+#include "AAPTest.h"
 
 /*Compare the max length.*/
 int strMaxLenCmp(const char *p1, const char *p2);
@@ -51,7 +52,10 @@ int PerfTest(list<TEST_ITEM>::iterator *pCy);
 int ReportTestResult(list<TEST_ITEM>::iterator StopCy);
 
 /*recevie the test result from UI program.*/
-int AcceptCMD(char *pCmd,int DataLen)
+int AcceptCMD(char *pCmd,int DataLen);
+
+/*run test.*/
+int RunTest();
 
 #endif
 
