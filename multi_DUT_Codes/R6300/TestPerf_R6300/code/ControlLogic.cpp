@@ -179,3 +179,23 @@ void CylinderStartTest()
     }
     return;
 }
+
+/*
+	Start Parse Cammand Task
+*/
+int CControlLogic::StartAMBTUIParseCammandTask(void)
+{
+	pthread_t parser_pkt_id;
+	pthread_create(&parser_pkt_id,NULL,(void* (*) (void*))ParsePktProcess,this);
+	return true;
+}
+
+/*
+	Start Auto Fixture Task
+*/
+int CControlLogic::StartAutoFixtureTask(void)
+{
+	pthread_t cylinder_id;
+	pthread_create(&cylinder_id,NULL,(void* (*) (void*))CylinderStartTest,NULL);
+	return true;
+}

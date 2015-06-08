@@ -23,6 +23,12 @@ public:
 	/*connect the UI program .*/
     int UIConnection();
 	
+	/*Start Auto Fixture Task*/
+	int CControlLogic::StartAutoFixtureTask(void);
+	
+	/*	Start Parse Cammand Task*/
+	int CControlLogic::StartAMBTUIParseCammandTask(void)
+	
 public:
 	pthread_t dwParsePktThreadID;
 	pthread_t dwAutoFixThreadID; 
