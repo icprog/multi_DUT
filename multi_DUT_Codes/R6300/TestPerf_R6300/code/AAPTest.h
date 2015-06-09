@@ -4,4 +4,7 @@
 
 #endif
 
+/*Parser the test items*/
+int ParseTestItem(const char *p1, const char *p2);
+
 
