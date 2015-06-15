@@ -27,7 +27,7 @@ If in string_2's items not in string _1, print it.
 '''
 for j in range(0, len(temp_2)):
     if temp_1.count(temp_2[j]) == 0 :
-        result_2.append(temp_2[i])        
+        result_2.append(temp_2[j])        
 print(result_2)
 
 
