@@ -1,8 +1,8 @@
 #ifndef TEST_ITEM_SCRIPT_H
 #define TEST_ITEM_SCRIPT_H
 
-#include "AmbitTestSysDef.h"
-#include "AmbitExeCtrl.h"
+#include "AmbtTestSysDef.h"
+#include "AmbtExeCtrl.h"
 #include "LEDCheck.h"
 #include "Cylinder.h"
 

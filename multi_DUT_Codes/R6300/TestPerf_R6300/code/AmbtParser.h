@@ -1,6 +1,6 @@
-#ifndef AMBIT_PARSER_H
-#define AMBIT_PARSER_H
-#include "AmbitTestSysDef.h"
+#ifndef AMBT_PARSER_H
+#define AMBT_PARSER_H
+#include "AmbtTestSysDef.h"
 
 #define FILE_PASER_BUF_L 512
 

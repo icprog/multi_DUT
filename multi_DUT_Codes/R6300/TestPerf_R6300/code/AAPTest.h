@@ -3,7 +3,7 @@
 #define A_AP_TEST_H
 
 #include <pthread.h>
-#include "AmbitParser.h"
+#include "AmbtParser.h"
 #include "AmCommonIO.h"
 #include "CenTime.h"
 #include "AAPTest.h"

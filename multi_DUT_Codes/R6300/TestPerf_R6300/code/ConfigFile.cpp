@@ -1,6 +1,6 @@
 #include "ConfigFile.h"
 
-#include "AmbitTestSysDef.h"
+#include "AmbtTestSysDef.h"
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>

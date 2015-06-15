@@ -1,4 +1,4 @@
-#include "AmbitParser.h"
+#include "AmbtParser.h"
 
 /*this function is copy some character from string to other case one spec character was happen*/
 int CopyCaseStr(char *pDst, int DstLen, const char *pSrc, char caseCH)
