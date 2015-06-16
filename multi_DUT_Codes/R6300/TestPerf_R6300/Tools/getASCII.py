@@ -11,6 +11,14 @@ def getASCII(MAC):
         result += temp.strip().split('0x')[-1]
     return result
 
-print(getASCII('ab122222:2222'))
+
+
+
+if __name__ == "__main__":
+	if len(sys.argv) < 2:
+		print(getASCII('ab122222:2222'))
+	else:
+		print(getASCII(sys.argv[1]))
+		
 
 
