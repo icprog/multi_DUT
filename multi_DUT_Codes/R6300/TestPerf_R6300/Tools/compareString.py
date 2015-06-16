@@ -37,7 +37,7 @@ if __name__ == "__main__":
 	if len(sys.argv) < 2:
 		compareString(temp1, temp2)
 	else:
-		compareString(argv[1], argv[2])
+		compareString(sys.argv[1], sys.argv[2])
 		
 
 
