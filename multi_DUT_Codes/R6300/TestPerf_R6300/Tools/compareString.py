@@ -9,10 +9,7 @@ import sys
 temp1 = "111 222 5555"
 temp2 = "aaa bbb ccc 111"
 
-def compareString(temp1, temp2):
-	temp_1 = temp1.strip().split(' ')
-	temp_2 = temp2.strip().split(' ')
-
+def compareString(temp_1, temp_2):
 	result_1 = list()
 	result_2 = list()
 
@@ -33,13 +30,18 @@ def compareString(temp1, temp2):
 			result_2.append(temp_2[j])        
 	print(result_2)
 
+'''
 if __name__ == "__main__":
 	if len(sys.argv) < 2:
+		temp1 = temp1.strip().split(' ')
+		temp2 = temp2.strip().split(' ')
 		compareString(temp1, temp2)
 	else:
-		compareString(sys.argv[1], sys.argv[2])
+		temp1 = sys.argv[1].strip().split(' ')
+		temp2 = sys.argv[2].strip().split(' ')
+	compareString(temp1, temp2)
 		
-
+'''
 
 
 

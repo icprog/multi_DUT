@@ -20,7 +20,7 @@ def ListFilesToTxt(dir1):
 def Test():
     dir1 = r"C:\Windows"
     result = ListFilesToTxt(dir1)
-    print(result)
+    #print(result)
  
 def writeFile(f, d):
     try:
@@ -33,6 +33,6 @@ def writeFile(f, d):
     except:
         traceback.print_exc()
         
-Test()
+
 
 
