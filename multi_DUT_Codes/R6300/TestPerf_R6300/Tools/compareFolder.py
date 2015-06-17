@@ -10,8 +10,8 @@ import os
 import listTheFile
 import compareString
 
-PATH_1 = r'c:\users'
-PATH_2 = r'c:\FFOutput'
+PATH_1 = r'C:\Users\Administrator\Desktop\Multi_DUT\Multi-DUT\Multi-DUT\Multi-DUT_codes\WNDR4500&WNDR3400v3\TestPerf\code'
+PATH_2 = r'E:\Program\Github\multi_DUT\multi_DUT_Codes\R6300\TestPerf_R6300\code'
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 :
