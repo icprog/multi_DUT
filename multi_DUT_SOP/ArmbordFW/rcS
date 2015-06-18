@@ -1,0 +1,65 @@
+#! /bin/sh
+
+/bin/mount -a
+/bin/mount -o remount,rw /
+/bin/portmap
+
+
+/bin/mount -t sysfs -o rw none /sys
+mkdir -p /tmp/dev && mount -n -t tmpfs -o mode=0755 udev /dev && mkdir -m 0700 -p /dev/.static/dev
+udevstart
+udevd &
+mkdir /dev/pts/
+mknod /dev/pts/0 c 136 0
+
+/usr/sbin/smbd -D -s /usr/lib/smb.conf
+/usr/sbin/nmbd -D -s /usr/lib/smb.conf
+
+
+export PATH=$PATH:/usr/local/sbin
+
+cd /boot/
+insmod /boot/xfs.ko
+insmod /boot/ipsec.ko
+insmod /boot/ipv6.ko
+insmod /boot/slhc.ko
+insmod /boot/ppp_generic.ko
+insmod /boot/pppox.ko
+insmod /boot/pppoe.ko
+insmod /boot/usbserial.ko
+insmod /boot/ftdi_sio.ko
+insmod /boot/mv_i2c.ko
+mknod /dev/i2c c 220 0
+
+cd /
+ifconfig eth0 10.0.0.105
+ifconfig eth1 192.168.1.100
+route add -net 0.0.0.0 netmask 0.0.0.0 gw 192.168.1.1
+telnetd
+tftpd
+cd /Test
+sh test.sh
+cd /
+#echo "Now begin to upgrade the system"
+#flash_eraseall /dev/mtd1
+#nandwrite /dev/mtd1 ./uImage.ms200.20090910.mtddump
+#flash_eraseall /dev/mtd2
+#ubiformat /dev/mtd2 -f ./ms200-20091001.ubi -s 2048 -O 2048
+#sync
+#sleep 1
+#fw_setenv fw_up disable
+#sleep 2
+#fw_setenv bootargs_root ubi.mtd=2,2048 root=ubi0:rootfs rootfstype=ubifs init=/linuxrc
+#sleep 2
+#fw_setenv console 'console=ttyS0,115200'
+#sleep 2
+#fw_setenv bootcmd 'nand read.e 0x800000 0x100000 0x300000; setenv bootargs $(console) $(bootargs_root); bootm 0x800000'
+#sleep 2
+#fw_setenv enaAutoRecovery no
+#sleep 2
+#reboot
+#swapon /dev/sda2
+#sleep 10
+#mount  /dev/sda3 /share/1000 
+#chmod 777 /share/1000
+
