@@ -2,7 +2,8 @@
 
 
 '''
-
+----------------------------------------------------------------------
+pixel Chinese font library generator for embed system
 function : this program is to genreate chinese char library for embed system
  in encoding with gb2312 ,gbk, or Big5, in any font type user like and system have.   
  it can also generate Ascii librarys, the char height and width is allways 2:1 
@@ -11,6 +12,7 @@ author :zfh1005
 start date :20150706
 license: GPL3
 
+----------------------------------------------------------------------   
 '''
 
 import wx
@@ -91,12 +93,192 @@ class MyFrame(wx.Frame):
         vsizer.Add(panel2,1,wx.EXPAND|wx.TOP,0)        
         self.SetSizer(vsizer)
         self.SetAutoLayout(True)
-  
+        
+        # bind the menu event to an event handler
+        self.Bind(wx.EVT_CHOICE, self.OnSetEncode, id=ID_ENCODE)
+        self.Bind(wx.EVT_CHOICE,self.OnSetFont,id=ID_FONT)
+        self.Bind(wx.EVT_CHOICE,self.OnSetWeight,id=ID_WEIGHT)
+        self.Bind(wx.EVT_CHOICE,self.OnSetSize,id=ID_HEIGHT)
+        self.Bind(wx.EVT_BUTTON,self.OnDo,id=wx.ID_APPLY)
+        #self.Bind(wx.EVT_PAINT, self.OnPaint)
+          
+        #self.CreateStatusBar()
+
+#--------------------------------------------------------------------   
+    def OnSetEncode(self,evt):
+        """set encoding"""
+        self.encode=self.encodeChoise.GetStringSelection()
+        #print(self.encode)
+        
+    def OnSetFont(self,evt):
+        """set font """
+        self.fontName=self.fontChoise.GetStringSelection()
+        #print(self.fontName)
+        self.showExample()
+        
+    def OnSetWeight(self,evt):
+        """set font weight"""
+        #print(self.weightChoise.GetStringSelection())
+        weight=self.weightChoise.GetStringSelection()
+        if(weight=="Normal"):
+            self.weight=wx.NORMAL
+        elif(weight=="Light"):
+            self.weight=wx.LIGHT
+        else:
+            self.weight=wx.BOLD            
+        self.showExample()
+        
+    def OnSetSize(self,evt):
+        """set font size"""
+        self.height=int(self.heightChoise.GetStringSelection())
+        #print(self.height)
+        self.showExample()
+        
+    def showExample(self):
+        """change the example chars to show the result to user"""
+        self.font=wx.Font(self.height*0.75, wx.TELETYPE , wx.NORMAL, self.weight, faceName=self.fontName)
+        self.dc.SetFont(self.font) 
+        self.showtext.SetFont(self.font) 
+        self.showtext.Wrap(-1)
+        self.showtext.Wrap(400)
+
+#--------------------------------------------------------------------        
+    def getCharPixel(self ,chr,width,height):
+        """get the pixels of a given char"""           
+        self.dc.Clear()
+        print(chr)
+        #print("getting char ",chr#,self.charheight,width)
+        self.dc.DrawText(chr,0,0)
+        #self.screen.Blit(0,0,319,239,self.dc,0,0)
+        k=7
+        dot=0
+        pixel=[]
+        for i in range(0,height):
+            for j in range(0,width) :
+                clr=self.dc.GetPixel(j,i)
+                if(clr[0]!=0):
+                    dot=dot
+                    #print(clr,hex(dot)," k=",k,hex(1<))
+                k=k-1
+                if (k == -1):
+                    pixel.append(dot)
+                    dot=0
+                    k=7
+                
+        pixel.append(dot)
+        #print(len(pixel),pixel)
+        #raw_input("waiting: ")
+        return pixel
+    
+   
+    #write it to file
+    def writeLib(self,name,charlist,charpixeldic):
+        """write the generated library as a c header file,
+           the name parm will be use to name the file and the array in file
+        """
+        print("\n now write the lib file")
+        headerFile=open(name+".h",'w')
+        headerFile.write("/* char lib header file generate by pyPCLGenerator */\n")
+        headerFile.write("/* go vinge.cublog.cn for source code */\n\n")        
+        headerFile.write("/* "+name+" char pixel library, char height:"+str(self.height)+"*/\n")
+        
+        headerFile.write("const unsigned char "+name+"[]["+str(len(charpixeldic[charlist[0]]))+"]={\n")
+        result=""
+        ct=0
+        for i in charlist[0:-1]:
+            result=result+"    {/*---char: "+i+" ---*/\n    "
+            s=["0x"+binascii.b2a_hex(chr(j)) for j in charpixeldic[i]]            
+            for j in s[0:-1] :
+                result=result+j+","
+            result=result+s[-1]+"\n    },\n"
+            ct=ct+1
+            if(ct>1000):
+                print("writing, please wait")
+                headerFile.write(result)
+                headerFile.flush()
+                result=""                                
+        #add the last char
+        result=result+"    {/*---char: "+charlist[-1]+" ---*/\n    "
+        s=["0x"+binascii.b2a_hex(chr(j)) for j in charpixeldic[charlist[-1]]]        
+        for j in s[0:-1] :
+            result=result+j+","
+        result=result+s[-1]+"\n    }\n};\n"        
+        headerFile.write(result)
+        headerFile.close()
+        
+#---------------------------------------------------------------        
+    def OnDo(self,evt):
+        """ generate the pixel char library"""
+        if(self.encode=="ASCII"):
+            #print("getting ascii")
+            self.genASCII()
+        elif(self.encode=="GB2312"):
+            #print("getting gb2312")
+            self.genGB2312()
+        elif(self.encode=="GBK"):
+            #print("getting gbk")
+            self.genGBK()
+        else:
+            #print("getting big5")
+            self.genBIG5()
+
+    
     def OnPaint(self,evt):
         """Event paint for app"""
         print("painting")
 
-		
+#-------------------------------------------------------------  
+    def genASCII(self):
+        "generate the ascii char library"
+        charList=[]
+        charDic={}
+        for i in range(32,127):
+            charList.append(chr(i))
+            charDic[chr(i)]=self.getCharPixel(chr(i),self.height/2,self.height)
+        self.writeLib("font"+str(self.height/2)+"X"+str(self.height)+"asciilib",charList,charDic)
+        print("\nascii library gen finish")
+        
+    def genGB2312(self):
+        "generate the chinese gb2312 char library"
+        charList=[]
+        charDic={}        
+        for i in range(0xb0,0xf8) :
+            for j in range(0xa1,0xff) :
+                thechar=chr(i)+chr(j)
+                charList.append(thechar)
+                charDic[thechar]=self.getCharPixel(thechar,self.height,self.height)
+        self.writeLib("font"+str(self.height)+"X"+str(self.height)+"gb2312lib",charList,charDic) 
+        print("\ngb2312 library gen finish")
+             
+    def genGBK(self):
+        "generate the chinese gbk char library"
+        charList=[]
+        charDic={}        
+        for i in range(0x81,0xff) :
+            for j in range(0x40,0xff) :
+                thechar=chr(i)+chr(j)
+                charList.append(thechar)
+                charDic[thechar]=self.getCharPixel(thechar,self.height,self.height)
+        self.writeLib("font"+str(self.height)+"X"+str(self.height)+"gbklib",charList,charDic)
+        print ("\ngbk library gen finish")
+        
+    def genBIG5(self):
+        "generate the chinese big5 char library"
+        charList=[]
+        charDic={}        
+        for i in range(0x81,0xff) :
+            for j in range(0x40,0x7f) :
+                thechar=chr(i)+chr(j)
+                charList.append(thechar)
+                charDic[thechar]=self.getCharPixel(thechar,self.height,self.height)
+            for j in range(0xa1,0xff) :
+                thechar=chr(i)+chr(j)
+                charList.append(thechar)
+                charDic[thechar]=self.getCharPixel(thechar,self.height,self.height)            
+        self.writeLib("font"+str(self.height)+"X"+str(self.height)+"big5lib",charList,charDic)        
+        print("\nbig5 library gen finish")
+        
+#----------------------------------------------------------    
 class MyApp(wx.App):
     def OnInit(self):
         frame = MyFrame(None, "Resource generator")
