@@ -12,6 +12,11 @@ author :zfh1005
 start date :20150706
 license: GPL3
 
+----------------------------------------------------------------------
+Notice:
+for gb2312 chars start form 0xB0A1 ths chars form 0xA0A1 to 0xAFFE is not included 
+for gbk,and big5, there are so many while holes start form  0xa1,thought they didn't
+ mean any chars, it was also fill with empty 0x00, so as to keep the library linear
 ----------------------------------------------------------------------   
 '''
 
